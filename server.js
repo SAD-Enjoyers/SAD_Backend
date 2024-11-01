@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const ini = require('ini');
 const cors = require('cors');
+const logger = require('./logger');
 
 
 const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
@@ -10,8 +11,11 @@ const port = config.server.port;
 const app = express();
 const Cors = cors({origin: 'http://localhost:3000',})
 app.use(Cors);
+app.use((req, res, next) => {
+  logger.info(`Request: ${req.method}, ${req.url}`);
+  next();
+});
 
-// logger
 // static file
 // http2
 // body parser
@@ -27,8 +31,9 @@ app.get('/v1/', (req, res) => {
 
 // all others case handler
 
-app.use((error, req, res, next) => {
-	console.error(error);
+app.use((err, req, res, next) => {
+  logger.error(`Error: ${req.method}, ${req.url}: \n${err.message} \n`);
+  res.status(500).send('Something went wrong!');
 })
 
 const server = app.listen(port, () => {
