@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const ini = require('ini');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const logger = require('./logger');
 
 
@@ -11,12 +12,13 @@ const port = config.server.port;
 const app = express();
 const Cors = cors({origin: 'http://localhost:3000',})
 app.use(Cors);
+app.use(bodyParser.json());
+app.use(express.static(__dirname + '/public'));
 app.use((req, res, next) => {
   logger.info(`Request: ${req.method}, ${req.url}`);
   next();
 });
 
-// static file
 // http2
 // body parser
 // encrypton
