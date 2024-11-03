@@ -1,3 +1,9 @@
-// setting headers
-// midlware param
-// 
+function post_signup (req, res, next) {
+	// body...
+}
+
+function post_login (req, res, next) {
+	// body...
+}
+
+module.exports = { post_signup, post_login };

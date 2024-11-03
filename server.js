@@ -4,7 +4,7 @@ const ini = require('ini');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const logger = require('./logger');
-
+const router = require('./routes/routes')
 
 const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
 const port = config.server.port;
@@ -19,14 +19,11 @@ app.use((req, res, next) => {
 	next();
 });
 
-// encrypton
-// env var
-
 app.get('/api/v1/', (req, res) => {
 	res.status(200).send(`Server is running on port ${port}`);
 });
 
-// app.use('/api/v1',);
+app.use('/api/v1', router);
 
 app.use((req, res, next) => {
 	res.status(404).send(
