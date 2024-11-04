@@ -3,14 +3,14 @@ const fs = require('fs');
 const ini = require('ini');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const logger = require('./logger');
-const router = require('./routes/routes')
+const logger = require('./utils/logger');
+const router = require('./routes/routes');
 
 const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
 const port = config.server.port;
 
 const app = express();
-const Cors = cors({origin: 'http://localhost:3000',})
+const Cors = cors({origin: `http://localhost:${port}`,})
 app.use(Cors);
 app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));

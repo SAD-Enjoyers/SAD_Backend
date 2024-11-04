@@ -1,4 +1,5 @@
 /node_modules
-/logs
+*/logs
 *.env
 my_notes.txt
+package-lock.json
