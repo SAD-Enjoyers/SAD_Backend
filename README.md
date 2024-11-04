@@ -41,6 +41,7 @@ backend/
 │   ├── models/           # Database models
 │   ├── routes/           # Route definitions
 │   ├── utils/            # Utility functions
+│   ├── config/           # Configuration files
 │   ├── config.ini        # Server configuration
 │   └── server.js         # Main server file
 ├── db/

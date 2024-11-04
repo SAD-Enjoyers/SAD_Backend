@@ -3,11 +3,19 @@ const fs = require('fs');
 const ini = require('ini');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const logger = require('./utils/logger');
+const logger = require('./config/logger');
+const { sequelize, connectDB } = require('./config/db');
 const router = require('./routes/routes');
+require('dotenv').config();
 
 const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
 const port = config.server.port;
+
+connectDB().then(() => {
+	sequelize.sync()
+		.then(() => console.log('Database synced.'))
+		.catch(error => console.error('Error syncing database:', error));
+});
 
 const app = express();
 const Cors = cors({origin: `http://localhost:${port}`,})
@@ -23,7 +31,7 @@ app.get('/api/v1/', (req, res) => {
 	res.status(200).send(`Server is running on port ${port}`);
 });
 
-app.use('/api/v1', router);
+app.use('/api/v1/', router);
 
 app.use((req, res, next) => {
 	res.status(404).send(
