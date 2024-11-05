@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const logger = require('./configs/logger');
 const { sequelize, connectDB } = require('./configs/db');
 const router = require('./routes/routes');
+const { success, error } = require('./utils/responseFormatter');
 require('dotenv').config();
 
 const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
@@ -24,20 +25,20 @@ app.use((req, res, next) => {
 });
 
 app.get('/api/v1/', (req, res) => {
-	res.status(200).send(`Server is running on port ${port}`);
+	res.status(200).json(success(`Server is running on port ${port}`, undefined));
 });
 
 app.use('/api/v1/', router);
 
 app.use((req, res, next) => {
-	res.status(404).send(
-		{status: 404, message: 'Route not found',requestedUrl: req.originalUrl});
+	res.status(404).json(
+		error('Route not found', 404)); // ,requestedUrl: req.originalUrl
 });
 
 
 app.use((err, req, res, next) => {
 	logger.error(`Error: ${req.method}, ${req.url}: \n${err.message} \n`);
-	res.status(500).send('Something went wrong!');
+	res.status(500).json(error('Something went wrong!', 500));
 });
 
 const server = app.listen(port, () => {
