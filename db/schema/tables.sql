@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS "Backup_user" (
 -- Expert Account Information
 CREATE TABLE IF NOT EXISTS "Expert" (
 	expert_id varchar(30) NOT NULL,
-	password varchar(100) NOT NULL,
+	e_password varchar(100) NOT NULL,
 	first_name varchar(100) NOT NULL,
 	last_name varchar(100) NOT NULL,
 	phone_number varchar(14) NOT NULL,
