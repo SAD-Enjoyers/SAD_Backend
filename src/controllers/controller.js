@@ -1,4 +1,6 @@
-function post_signup (req, res, next) {
+const { User, BackupUser } = require("../models/user");
+
+async function post_signup (req, res, next) {
 	// body...
 }
 

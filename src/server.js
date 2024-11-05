@@ -3,19 +3,15 @@ const fs = require('fs');
 const ini = require('ini');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const logger = require('./config/logger');
-const { sequelize, connectDB } = require('./config/db');
+const logger = require('./configs/logger');
+const { sequelize, connectDB } = require('./configs/db');
 const router = require('./routes/routes');
 require('dotenv').config();
 
 const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
 const port = config.server.port;
 
-connectDB().then(() => {
-	sequelize.sync()
-		.then(() => console.log('Database synced.'))
-		.catch(error => console.error('Error syncing database:', error));
-});
+connectDB() // there is no need to sync because explicitly define in sqls
 
 const app = express();
 const Cors = cors({origin: `http://localhost:${port}`,})
