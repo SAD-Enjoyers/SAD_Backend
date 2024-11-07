@@ -7,5 +7,6 @@ const router = express.Router();
 // midlware param
 
 router.post('/auth/signup', controller.signupUser);
+router.post('/auth/login', controller.login);
 
 module.exports = router;

@@ -4,6 +4,7 @@ const { success, error } = require('../utils/responseFormatter');
 const { hashPassword, verifyPassword } = require('../utils/hashPassword');
 const logger = require('../configs/logger');
 const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET;
 
 async function signupUser(req, res) {
 	const user_id = req.body.userName;
@@ -29,4 +30,41 @@ async function signupUser(req, res) {
 		}}, 201));
 }
 
-module.exports = { signupUser };
+async function login(req, res) {
+	const user_id = req.body.userName;
+	const u_password = req.body.userPassword;
+	const expert_id = req.body.userName;
+	const e_password = req.body.userPassword;
+
+	const user = await User.findOne({ where: { user_id } });
+	const expert = await Expert.findOne({ where: { expert_id } });
+	if ((!user && !expert) || (user && expert)) {
+		return res.status(404).json(error('Username/Password is not valid.', 404));
+		// To Do:
+		// 	there is a user with same username of expert
+		// 	handle it.
+	}
+
+	let jwtToken = "placeholder";
+	if(user){
+		const isPasswordValid = await verifyPassword(req.body.userPassword, user.u_password);
+		if (!isPasswordValid) {
+			return res.status(404).json(error('Username/Password is not valid.', 404)); // 401 have security issue so use 404
+		}
+		jwtToken = jwt.sign({ userName: user.user_id }, JWT_SECRET, {
+			expiresIn: '2h',
+		});
+	} else {
+		const isPasswordValid = await verifyPassword(req.body.userPassword, expert.e_password);
+		if (!isPasswordValid) {
+			return res.status(404).json(error('Username/Password is not valid.', 404));
+		}
+		jwtToken = jwt.sign({ userName: expert.user_id }, JWT_SECRET, {
+			expiresIn: '1h',
+		});
+	}
+
+	res.status(201).json(success('Login successful.', { token: jwtToken }));
+}
+
+module.exports = { signupUser, login };
