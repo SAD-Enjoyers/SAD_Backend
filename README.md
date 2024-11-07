@@ -94,6 +94,7 @@ And also files store in */var/www/SADapp/uploads/* and strucure of it like this:
 3. **Environment Setup**:
    - Copy `.env.example` to `.env`
    - Set values for your PostgreSQL and MongoDB connections, as well as any other required variables.
+   - Use `openssl rand -hex 64` command to generate JWT Token.
 
 ## Database Setup
 
