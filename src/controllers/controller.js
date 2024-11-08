@@ -40,10 +40,12 @@ async function login(req, res) {
 	const user = await User.findOne({ where: { user_id } });
 	const expert = await Expert.findOne({ where: { expert_id } });
 	if ((!user && !expert) || (user && expert)) {
-		return res.status(404).json(error('Username/Password is not valid.', 404));
-		// To Do:
-		// 	there is a user with same username of expert
-		// 	handle it.
+		if (user && expert){
+			logger.critical(`Critical: ${req.method}, ${req.url}: \nThere is a User with User_id of Admin. Login failed...(Contact DBA)\n`);
+			return res.status(404).json(error('Username/Password is not valid.', 404));
+		} else {
+			return res.status(404).json(error('Username/Password is not valid.', 404));
+		}
 	}
 
 	let jwtToken = "placeholder";
