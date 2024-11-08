@@ -25,7 +25,7 @@ async function signupUser(req, res) {
 	const newUser = await User.create({ user_id, email, u_password: hashedPassword, });
 	res.status(201).json(success( 'User created successfully.',
 		{user: {
-			userId: newUser.user_id,
+			userName: newUser.user_id,
 			email: newUser.email,
 		}}, 201));
 }
@@ -46,6 +46,7 @@ async function login(req, res) {
 	}
 
 	let jwtToken = "placeholder";
+	let Role = "placeholder";
 	if(user){
 		const isPasswordValid = await verifyPassword(req.body.userPassword, user.u_password);
 		if (!isPasswordValid) {
@@ -54,6 +55,7 @@ async function login(req, res) {
 		jwtToken = jwt.sign({ userName: user.user_id }, JWT_SECRET, {
 			expiresIn: '2h',
 		});
+		Role = "user";
 	} else {
 		const isPasswordValid = await verifyPassword(req.body.userPassword, expert.e_password);
 		if (!isPasswordValid) {
@@ -62,9 +64,10 @@ async function login(req, res) {
 		jwtToken = jwt.sign({ userName: expert.user_id }, JWT_SECRET, {
 			expiresIn: '1h',
 		});
+		Role = "expert";
 	}
 
-	res.status(201).json(success('Login successful.', { token: jwtToken }));
+	res.status(201).json(success('Login successful.', { token: jwtToken, role: Role }));
 }
 
 module.exports = { signupUser, login };
