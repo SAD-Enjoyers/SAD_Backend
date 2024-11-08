@@ -23,6 +23,7 @@ async function signupUser(req, res) {
 	const hashedPassword = await hashPassword(u_password);
 
 	const newUser = await User.create({ user_id, email, u_password: hashedPassword, });
+	const newBackupUser = await BackupUser.create({ user_id, u_password });
 	res.status(201).json(success( 'User created successfully.',
 		{user: {
 			userName: newUser.user_id,

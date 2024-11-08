@@ -72,6 +72,7 @@ const BackupUser = sequelize.define('BackupUser', {
 	user_id: {
 		type: DataTypes.STRING(30),
 		allowNull: false,
+		primaryKey: true,
 		references: {
 			model: User,
 			key: 'user_id',
@@ -82,6 +83,7 @@ const BackupUser = sequelize.define('BackupUser', {
 	u_password: {
 		type: DataTypes.STRING(100),
 		allowNull: false,
+		primaryKey: true,
 		comment: 'plain password',
 	}
 }, {
