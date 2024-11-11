@@ -18,8 +18,11 @@ CREATE TABLE IF NOT EXISTS "User" (
 	phone_number varchar(14),
 	image varchar(250),
 	balance numeric(12, 2),
-	card_number char(16)
+	card_number char(16),
+	verified boolean NOT NULL DEFAULT FALSE,
+	verification_token text
 );
+-- its good to have Exp time for token
 
 -- Backup User Information (also use for statistics)
 CREATE TABLE IF NOT EXISTS "Backup_user" (

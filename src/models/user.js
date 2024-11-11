@@ -60,6 +60,14 @@ const User = sequelize.define('User', {
 	card_number: {
 		type: DataTypes.CHAR(16),
 		allowNull: true,
+	},
+	verified: {
+		type: DataTypes.BOOLEAN,
+		defaultValue: false,
+	},
+	verificationToken: {
+		type: DataTypes.STRING,
+		allowNull: true,
 	}
 }, {
 	tableName: 'User',
