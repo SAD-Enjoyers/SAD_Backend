@@ -39,12 +39,18 @@ async function login(req, res) {
 
 	const user = await User.findOne({ where: { user_id } });
 	const expert = await Expert.findOne({ where: { expert_id } });
+
 	if ((!user && !expert) || (user && expert)) {
 		if (user && expert){
 			logger.critical(`Critical: ${req.method}, ${req.url}: \nThere is a User with User_id of Admin. Login failed...(Contact DBA)\n`);
 			return res.status(404).json(error('Username/Password is not valid.', 404));
 		} else {
 			return res.status(404).json(error('Username/Password is not valid.', 404));
+		}
+	}
+	if (user){
+		if (!user.verified) {
+			return res.status(403).json(error('Please verify your email to log in', 403));
 		}
 	}
 

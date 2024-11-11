@@ -65,7 +65,7 @@ const User = sequelize.define('User', {
 		type: DataTypes.BOOLEAN,
 		defaultValue: false,
 	},
-	verificationToken: {
+	verification_token: {
 		type: DataTypes.STRING,
 		allowNull: true,
 	}
