@@ -73,4 +73,16 @@ async function login(req, res) {
 	res.status(201).json(success('Login successful.', { token: jwtToken, role: Role }));
 }
 
-module.exports = { signupUser, login };
+
+async function forgotPassword(req, res) {
+	const email = req.body.email;
+
+	const user = await User.findOne({ where: { email } });
+	if(!user){
+		return res.status(404).json(error('Email is not valid.', 404));
+	}
+
+	// body
+}
+
+module.exports = { signupUser, login, forgotPassword };
