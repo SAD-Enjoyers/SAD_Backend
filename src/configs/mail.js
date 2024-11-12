@@ -19,4 +19,19 @@ function createMail (dis, title= 'Information Email from TechVerse.', message= '
 	};
 }
 
-module.exports = { transporter, createMail };
+function forgotMail (dis, code) {
+	const title= 'TechVerse. Account Recovery Code';
+	const message= `Hello,\n\nWe received a request to reset the password for your account. 
+				Please use the recovery code below to complete the process. 
+				If you did not request a password reset, please ignore this email.
+				\n**Your Recovery Code:** ${code} \n\nFor your security, this code will expire in 15 minutes. 
+				Please do not share it with anyone.\n\n\nThank you,\nThe TechVerse Team`;
+	return {
+		from: EMAIL,
+		to: dis,
+		subject: title,
+		text: message
+	};
+}
+
+module.exports = { transporter, createMail, forgotMail };
