@@ -3,3 +3,4 @@
 *.env
 my_notes.txt
 package-lock.json
+*_test.js
