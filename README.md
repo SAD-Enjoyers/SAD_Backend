@@ -98,6 +98,9 @@ And also files store in */var/www/SADapp/uploads/* and strucure of it like this:
    - Enter some **Gmail** address and password that can send email via application.
    - Set values for your PostgreSQL and MongoDB connections, as well as any other required variables.
 
+4. **configuration**:
+   - Modify the desired parameters in this file.
+
 ## Database Setup
 
 ### PostgreSQL
