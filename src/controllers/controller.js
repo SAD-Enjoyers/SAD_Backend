@@ -1,10 +1,17 @@
+const ini = require('ini');
+const fs = require('fs');
 const { User, BackupUser } = require('../models/user');
 const { Expert } = require('../models/expert');
 const { success, error } = require('../utils/responseFormatter');
 const { hashPassword, verifyPassword } = require('../utils/hashPassword');
+const { randomPassword } = require('../utils/randomPassword');
 const logger = require('../configs/logger');
+const { clearRecoveryCode } = require('../utils/clearRecoveryCode');
+const { transporter, createMail, forgotMail } = require('../configs/mail');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
+const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
+const expireTime = config.app.expireTime;
 
 async function signupUser(req, res) {
 	const user_id = req.body.userName;
@@ -74,15 +81,27 @@ async function login(req, res) {
 }
 
 
-async function forgotPassword(req, res) {
+async function sendForgotMail(req, res) {
 	const email = req.body.email;
 
 	const user = await User.findOne({ where: { email } });
-	if(!user){
+	if(!user){ // || !user.verified 
 		return res.status(404).json(error('Email is not valid.', 404));
 	}
 
-	// body
+	let user_id = user.user_id;
+	const userBackup = await BackupUser.findOne({ where: { user_id } });
+	const recoveryCode = randomPassword();
+
+	const mail = forgotMail(email, recoveryCode);
+	await transporter.sendMail(mail);
+
+	userBackup.recovery_code = recoveryCode;
+	userBackup.generated_time = Date.now();
+	await userBackup.save();
+
+	res.status(250).json(success('The recovery code has been sent to your email.', { email })); 
+	return setTimeout(clearRecoveryCode, expireTime, userBackup);
 }
 
-module.exports = { signupUser, login, forgotPassword };
+module.exports = { signupUser, login, sendForgotMail };
