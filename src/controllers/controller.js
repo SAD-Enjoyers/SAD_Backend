@@ -85,7 +85,7 @@ async function sendForgotMail(req, res) {
 	const email = req.body.email;
 
 	const user = await User.findOne({ where: { email } });
-	if(!user){ // || !user.verified 
+	if(!user || !user.verified){
 		return res.status(404).json(error('Email is not valid.', 404));
 	}
 
@@ -100,8 +100,39 @@ async function sendForgotMail(req, res) {
 	userBackup.generated_time = Date.now();
 	await userBackup.save();
 
-	res.status(250).json(success('The recovery code has been sent to your email.', { email })); 
+	res.status(250).json(success('The recovery code has been sent to your email.', { user_id, email })); 
 	return setTimeout(clearRecoveryCode, expireTime, userBackup);
 }
 
-module.exports = { signupUser, login, sendForgotMail };
+async function verifyRecoveryCode (req, res) {
+	const email = req.body.email;
+	const user_id = req.body.user_id;
+	const recoveryCode = req.body.recoveryCode;
+	const newPassword = req.body.newPassword;
+	const now = Date.now();
+	const userBackup = await BackupUser.findOne({ where: { user_id } });
+
+	if(!userBackup || !userBackup.recovery_code){ // bad handling
+		return res.status(400).json(error('User Not Found.', 400));
+	}
+	if(now >= userBackup.generated_time + expireTime){
+		return res.status(403).json(error('Recovery Code has been expired.', 403));
+	}
+	if(userBackup.recovery_code != recoveryCode){
+		return res.status(400).json(error('Recovery Code is not valid.', 400));
+	} else {
+		const user = await User.findOne({ where: { user_id } });
+		// there is no need for user validation
+		const hashedPassword = await hashPassword(newPassword);
+		user.u_password = hashedPassword;
+		userBackup.u_password = newPassword;
+		userBackup.recovery_code = null;
+		await user.save();
+		await userBackup.save();
+
+		return res.status(200).json(success('Password has been changed.', { user_id, email }));
+	}
+
+}
+
+module.exports = { signupUser, login, sendForgotMail, verifyRecoveryCode };
