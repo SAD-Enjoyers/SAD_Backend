@@ -48,6 +48,21 @@ async function signupUser(req, res) {
 		}}, 201));
 }
 
+async function verifyEmail (req, res) {
+	const { token, userName } = req.query;
+
+	const user = await User.findOne({ where: { user_id: userName, verification_token: token } });
+	if (!user) {
+		return res.status(400).send('Invalid or expired verification link');
+	}
+
+	user.verified = true;
+	user.verification_token = null;
+	await user.save();
+
+	return res.redirect('/login');
+}
+
 async function login(req, res) {
 	const user_id = req.body.userName;
 	const u_password = req.body.userPassword;
