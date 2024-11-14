@@ -8,11 +8,14 @@ const { randomPassword } = require('../utils/randomPassword');
 const logger = require('../configs/logger');
 const { clearRecoveryCode } = require('../utils/clearRecoveryCode');
 const { generateRandomToken } = require('../utils/tokenGenerator');
-const { transporter, createMail, forgotMail } = require('../configs/mail');
+const { transporter, createMail, forgotMail, verifyMail } = require('../configs/mail');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
 const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
 const expireTime = parseInt(config.app.expireTime);
+const domain = config.server.domain;
+const name = config.app.name;
+const baseRoute = 'api/v1'
 
 async function signupUser(req, res) {
 	const user_id = req.body.userName;
@@ -29,10 +32,16 @@ async function signupUser(req, res) {
 	}
 
 	const hashedPassword = await hashPassword(u_password);
+	const verificationToken = await generateRandomToken();
 
-	const newUser = await User.create({ user_id, email, u_password: hashedPassword, });
+	const verificationUrl = `http://${domain}/${baseRoute}/auth/verify-email?token=${verificationToken}&userName=${user_id}`;
+	const mail = verifyMail(email, verificationUrl, domain, name);
+	await transporter.sendMail(mail);
+
+	const newUser = await User.create({ user_id, email, u_password: hashedPassword, verification_token: verificationToken});
 	const newBackupUser = await BackupUser.create({ user_id, u_password });
-	res.status(201).json(success( 'User created successfully.',
+
+	return res.status(201).json(success( 'User registered. Please check your email for verification.',
 		{user: {
 			userName: newUser.user_id,
 			email: newUser.email,
@@ -100,7 +109,7 @@ async function sendForgotMail(req, res) {
 	const userBackup = await BackupUser.findOne({ where: { user_id } });
 	const recoveryCode = randomPassword();
 
-	const mail = forgotMail(email, recoveryCode);
+	const mail = forgotMail(email, recoveryCode, name);
 	await transporter.sendMail(mail);
 
 	userBackup.recovery_code = recoveryCode;
@@ -142,4 +151,4 @@ async function verifyRecoveryCode (req, res) {
 
 }
 
-module.exports = { signupUser, login, sendForgotMail, verifyRecoveryCode };
+module.exports = { signupUser, login, sendForgotMail, verifyRecoveryCode, verifyEmail };
