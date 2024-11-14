@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
 	}
 });
 
-function createMail (dis, title= 'Information Email from TechVerse.', message= 'Welcome to TechVerse.') {
+function createMail (dis, title= 'TechVerse. Information Email.', message= 'Welcome to TechVerse.') {
 	return {
 		from: EMAIL,
 		to: dis,
@@ -19,9 +19,27 @@ function createMail (dis, title= 'Information Email from TechVerse.', message= '
 	};
 }
 
-function forgotMail (dis, code) {
-	const title= 'TechVerse. Account Recovery Code';
-	const message= `	Hello,
+function verifyMail (dis, url, domain, name) {
+	const title = `${name}. Verify your email.`;
+	const message = `	Welcome to TechVerse,
+
+	Please verify your email by clicking on the following link:
+	${url}
+	If you did not registered in ${domain}, please ignore this email.
+
+	Thank you,
+	The ${name} Team.`;
+	return {
+		from: EMAIL,
+		to: dis,
+		subject: title,
+		text: message
+	};
+}
+
+function forgotMail (dis, code, name) {
+	const title = `${name}. Account Recovery Code`;
+	const message = `	Hello,
 
 	We received a request to reset the password for your account. Please use the recovery code below to complete the process.
 	If you did not request a password reset, please ignore this email.
@@ -31,7 +49,7 @@ function forgotMail (dis, code) {
 	For your security, this code will expire in 15 minutes. Please do not share it with anyone.
 
 	Thank you,
-	The TechVerse Team`;
+	The ${name} Team`;
 	return {
 		from: EMAIL,
 		to: dis,
@@ -40,4 +58,4 @@ function forgotMail (dis, code) {
 	};
 }
 
-module.exports = { transporter, createMail, forgotMail };
+module.exports = { transporter, createMail, forgotMail, verifyMail };
