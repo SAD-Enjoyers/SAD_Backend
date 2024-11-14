@@ -1,17 +1,13 @@
+const { User, BackupUser, Expert } = require('../models');
+const { success, error, hashPassword, verifyPassword,
+	randomPassword, clearRecoveryCode, generateRandomToken } = require('../utils');
+const { logger, transporter, createMail, forgotMail, verifyMail } = require('../configs');
+const jwt = require('jsonwebtoken');
 const ini = require('ini');
 const fs = require('fs');
-const { User, BackupUser } = require('../models/user');
-const { Expert } = require('../models/expert');
-const { success, error } = require('../utils/responseFormatter');
-const { hashPassword, verifyPassword } = require('../utils/hashPassword');
-const { randomPassword } = require('../utils/randomPassword');
-const logger = require('../configs/logger');
-const { clearRecoveryCode } = require('../utils/clearRecoveryCode');
-const { generateRandomToken } = require('../utils/tokenGenerator');
-const { transporter, createMail, forgotMail, verifyMail } = require('../configs/mail');
-const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET;
 const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
+
+const JWT_SECRET = process.env.JWT_SECRET;
 const expireTime = parseInt(config.app.expireTime);
 const domain = config.server.domain;
 const name = config.app.name;

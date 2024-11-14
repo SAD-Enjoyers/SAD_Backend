@@ -3,12 +3,10 @@ const fs = require('fs');
 const ini = require('ini');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const logger = require('./configs/logger');
-const { sequelize, connectDB } = require('./configs/db');
+const { sequelize, connectDB, logger } = require('./configs');
 const router = require('./routes/routes');
-const { success, error } = require('./utils/responseFormatter');
+const { success, error } = require('./utils');
 require('dotenv').config();
-
 const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
 const port = parseInt(config.server.port);
 
