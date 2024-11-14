@@ -85,7 +85,7 @@ async function sendForgotMail(req, res) {
 	const email = req.body.email;
 
 	const user = await User.findOne({ where: { email } });
-	if(!user){ //  || !user.verified
+	if(!user || !user.verified){ 
 		return res.status(404).json(error('Email is not valid.', 404));
 	}
 
@@ -125,9 +125,8 @@ async function verifyRecoveryCode (req, res) {
 		// there is no need for user validation
 		const hashedPassword = await hashPassword(newPassword);
 		user.u_password = hashedPassword;
-		userBackup.set({u_password: newPassword, recovery_code: null});
-		// userBackup.u_password = newPassword;
-		// userBackup.recovery_code = null;
+		userBackup.u_password = newPassword;
+		userBackup.recovery_code = null;
 		await user.save();
 		await userBackup.save();
 

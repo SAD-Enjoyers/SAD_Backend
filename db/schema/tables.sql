@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS "Backup_user" (
 	u_password varchar(100) NOT NULL, -- plain password
 	recovery_code varchar(100),
 	generated_time bigint, -- unix timestamp
-	PRIMARY KEY (user_id, u_password),
+	PRIMARY KEY (user_id),
 	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE NO ACTION ON UPDATE CASCADE
 );
 

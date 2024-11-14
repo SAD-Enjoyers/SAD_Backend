@@ -83,7 +83,6 @@ const BackupUser = sequelize.define('BackupUser', {
 	u_password: {
 		type: DataTypes.STRING(100),
 		allowNull: false,
-		primaryKey: true,
 		comment: 'plain password',
 	},
 	recovery_code: {
