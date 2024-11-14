@@ -10,7 +10,7 @@ const { success, error } = require('./utils/responseFormatter');
 require('dotenv').config();
 
 const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
-const port = config.server.port;
+const port = parseInt(config.server.port);
 
 connectDB() // there is no need to sync because explicitly define in sqls
 

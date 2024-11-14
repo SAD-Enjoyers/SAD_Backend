@@ -11,7 +11,7 @@ const { transporter, createMail, forgotMail } = require('../configs/mail');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
 const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
-const expireTime = config.app.expireTime;
+const expireTime = parseInt(config.app.expireTime);
 
 async function signupUser(req, res) {
 	const user_id = req.body.userName;
@@ -85,7 +85,7 @@ async function sendForgotMail(req, res) {
 	const email = req.body.email;
 
 	const user = await User.findOne({ where: { email } });
-	if(!user || !user.verified){
+	if(!user){ //  || !user.verified
 		return res.status(404).json(error('Email is not valid.', 404));
 	}
 
@@ -112,10 +112,10 @@ async function verifyRecoveryCode (req, res) {
 	const now = Date.now();
 	const userBackup = await BackupUser.findOne({ where: { user_id } });
 
-	if(!userBackup || !userBackup.recovery_code){ // bad handling
+	if(!userBackup || !userBackup.recovery_code || !userBackup.generated_time){ // bad handling
 		return res.status(400).json(error('User Not Found.', 400));
 	}
-	if(now >= userBackup.generated_time + expireTime){
+	if(now >= parseInt(userBackup.generated_time) + expireTime){
 		return res.status(403).json(error('Recovery Code has been expired.', 403));
 	}
 	if(userBackup.recovery_code != recoveryCode){
@@ -125,8 +125,9 @@ async function verifyRecoveryCode (req, res) {
 		// there is no need for user validation
 		const hashedPassword = await hashPassword(newPassword);
 		user.u_password = hashedPassword;
-		userBackup.u_password = newPassword;
-		userBackup.recovery_code = null;
+		userBackup.set({u_password: newPassword, recovery_code: null});
+		// userBackup.u_password = newPassword;
+		// userBackup.recovery_code = null;
 		await user.save();
 		await userBackup.save();
 
