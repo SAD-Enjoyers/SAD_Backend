@@ -7,6 +7,7 @@ const { hashPassword, verifyPassword } = require('../utils/hashPassword');
 const { randomPassword } = require('../utils/randomPassword');
 const logger = require('../configs/logger');
 const { clearRecoveryCode } = require('../utils/clearRecoveryCode');
+const { generateRandomToken } = require('../utils/tokenGenerator');
 const { transporter, createMail, forgotMail } = require('../configs/mail');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
