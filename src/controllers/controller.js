@@ -1,10 +1,17 @@
+const ini = require('ini');
+const fs = require('fs');
 const { User, BackupUser } = require('../models/user');
 const { Expert } = require('../models/expert');
 const { success, error } = require('../utils/responseFormatter');
 const { hashPassword, verifyPassword } = require('../utils/hashPassword');
+const { randomPassword } = require('../utils/randomPassword');
 const logger = require('../configs/logger');
+const { clearRecoveryCode } = require('../utils/clearRecoveryCode');
+const { transporter, createMail, forgotMail } = require('../configs/mail');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
+const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
+const expireTime = parseInt(config.app.expireTime);
 
 async function signupUser(req, res) {
 	const user_id = req.body.userName;
@@ -79,4 +86,59 @@ async function login(req, res) {
 	res.status(201).json(success('Login successful.', { token: jwtToken, role: Role }));
 }
 
-module.exports = { signupUser, login };
+
+async function sendForgotMail(req, res) {
+	const email = req.body.email;
+
+	const user = await User.findOne({ where: { email } });
+	if(!user || !user.verified){ 
+		return res.status(404).json(error('Email is not valid.', 404));
+	}
+
+	let user_id = user.user_id;
+	const userBackup = await BackupUser.findOne({ where: { user_id } });
+	const recoveryCode = randomPassword();
+
+	const mail = forgotMail(email, recoveryCode);
+	await transporter.sendMail(mail);
+
+	userBackup.recovery_code = recoveryCode;
+	userBackup.generated_time = Date.now();
+	await userBackup.save();
+
+	res.status(250).json(success('The recovery code has been sent to your email.', { user_id, email })); 
+	return setTimeout(clearRecoveryCode, expireTime, userBackup);
+}
+
+async function verifyRecoveryCode (req, res) {
+	const email = req.body.email;
+	const user_id = req.body.user_id;
+	const recoveryCode = req.body.recoveryCode;
+	const newPassword = req.body.newPassword;
+	const now = Date.now();
+	const userBackup = await BackupUser.findOne({ where: { user_id } });
+
+	if(!userBackup || !userBackup.recovery_code || !userBackup.generated_time){ // bad handling
+		return res.status(400).json(error('User Not Found.', 400));
+	}
+	if(now >= parseInt(userBackup.generated_time) + expireTime){
+		return res.status(403).json(error('Recovery Code has been expired.', 403));
+	}
+	if(userBackup.recovery_code != recoveryCode){
+		return res.status(400).json(error('Recovery Code is not valid.', 400));
+	} else {
+		const user = await User.findOne({ where: { user_id } });
+		// there is no need for user validation
+		const hashedPassword = await hashPassword(newPassword);
+		user.u_password = hashedPassword;
+		userBackup.u_password = newPassword;
+		userBackup.recovery_code = null;
+		await user.save();
+		await userBackup.save();
+
+		return res.status(200).json(success('Password has been changed.', { user_id, email }));
+	}
+
+}
+
+module.exports = { signupUser, login, sendForgotMail, verifyRecoveryCode };

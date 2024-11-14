@@ -91,8 +91,15 @@ const BackupUser = sequelize.define('BackupUser', {
 	u_password: {
 		type: DataTypes.STRING(100),
 		allowNull: false,
-		primaryKey: true,
 		comment: 'plain password',
+	},
+	recovery_code: {
+		type: DataTypes.STRING(100),
+		allowNull: true,
+	},
+	generated_time: {
+		type: DataTypes.BIGINT, // Use BIGINT for Unix timestamps in milliseconds
+		allowNull: true,
 	}
 }, {
 	tableName: 'Backup_user',

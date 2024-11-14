@@ -8,5 +8,7 @@ const router = express.Router();
 
 router.post('/auth/signup', controller.signupUser);
 router.post('/auth/login', controller.login);
+router.post('/auth/sendMail', controller.sendForgotMail);
+router.put('/auth/verify-recovery-code', controller.verifyRecoveryCode);
 
 module.exports = router;

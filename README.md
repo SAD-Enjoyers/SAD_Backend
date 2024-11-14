@@ -43,6 +43,7 @@ backend/
 │   ├── utils/            # Utility functions
 │   ├── config/           # Configuration files
 │   ├── config.ini        # Server configuration
+│   ├── .env              # Tokens and Keys
 │   └── server.js         # Main server file
 ├── db/
 │   ├── schema/           # SQL schema files for PostgreSQL
@@ -93,8 +94,12 @@ And also files store in */var/www/SADapp/uploads/* and strucure of it like this:
 
 3. **Environment Setup**:
    - Copy `.env.example` to `.env`
-   - Set values for your PostgreSQL and MongoDB connections, as well as any other required variables.
    - Use `openssl rand -hex 64` command to generate JWT Token.
+   - Enter some **Gmail** address and password that can send email via application.
+   - Set values for your PostgreSQL and MongoDB connections, as well as any other required variables.
+
+4. **configuration**:
+   - Modify the desired parameters in this file.
 
 ## Database Setup
 
