@@ -101,7 +101,7 @@ async function login(req, res) {
 		if (!isPasswordValid) {
 			return res.status(404).json(error('Username/Password is not valid.', 404));
 		}
-		jwtToken = jwt.sign({ userName: expert.user_id }, JWT_SECRET, {
+		jwtToken = jwt.sign({ userName: expert.expert_id }, JWT_SECRET, {
 			expiresIn: expertExpirationTime,
 		});
 		Role = "expert";
