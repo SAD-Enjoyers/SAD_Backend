@@ -4,6 +4,6 @@ const educationalService = require('./educationalService');
 
 module.exports = {
 	...user,
-	expert,
+	...expert,
 	...educationalService
 };
