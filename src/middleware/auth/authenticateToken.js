@@ -17,7 +17,7 @@ async function authenticateToken(req, res, next) {
 
 		const decoded = jwt.verify(token, JWT_SECRET);
 		req.userName = decoded.userName;
-		req.role = req.headers['role'];
+		req.role = req.headers['x-role'];
 
 		const currentTime = Math.floor(Date.now() / 1000);
 		const timeLeft = Math.floor((decoded.exp - currentTime)/60); // time in minute
