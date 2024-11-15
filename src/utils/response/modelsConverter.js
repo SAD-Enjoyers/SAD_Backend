@@ -21,8 +21,15 @@ function convUser (user) {
 	return newUser;
 }
 
-function convExpert (argument) {
-	// body... 
+function convExpert (expert) {
+	let newExpert = {
+		userName : expert.expert_id,
+		firstName : expert.first_name,
+		lastName : expert.last_name,
+		phoneNumber : expert.phone_number,
+		organizationalPosition : expert.organizational_position,
+	};
+	return newExpert;
 }
 
 module.exports = { convUser, convExpert };
