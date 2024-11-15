@@ -106,7 +106,8 @@ async function login(req, res) {
 		});
 		Role = "expert";
 	}
-
+	res.setHeader('x-token', jwtToken);
+	res.setHeader('x-role', Role);
 	res.status(201).json(success('Login successful.', { token: jwtToken, role: Role }));
 }
 
