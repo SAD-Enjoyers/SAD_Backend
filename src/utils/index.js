@@ -1,11 +1,11 @@
 const authUtils = require('./auth');
 const validation = require('./validation/validation');
-const responseFormatter = require('./response/responseFormatter');
+const response = require('./response');
 const helpers = require('./helpers/helpers');
 
 module.exports = {
     ...authUtils,
     ...validation,
-    ...responseFormatter,
+    ...response,
     ...helpers,
 };
