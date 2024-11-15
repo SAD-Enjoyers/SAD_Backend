@@ -10,6 +10,8 @@ const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
 const JWT_SECRET = process.env.JWT_SECRET;
 const expireTime = parseInt(config.app.expireTime);
 const domain = config.server.domain;
+const userExpirationTime = config.server.userExpirationTime;
+const expertExpirationTime = config.server.expertExpirationTime;
 const name = config.app.name;
 const baseRoute = 'api/v1'
 
@@ -91,7 +93,7 @@ async function login(req, res) {
 			return res.status(404).json(error('Username/Password is not valid.', 404)); // 401 have security issue so use 404
 		}
 		jwtToken = jwt.sign({ userName: user.user_id }, JWT_SECRET, {
-			expiresIn: '2h',
+			expiresIn: userExpirationTime,
 		});
 		Role = "user";
 	} else {
@@ -100,7 +102,7 @@ async function login(req, res) {
 			return res.status(404).json(error('Username/Password is not valid.', 404));
 		}
 		jwtToken = jwt.sign({ userName: expert.user_id }, JWT_SECRET, {
-			expiresIn: '1h',
+			expiresIn: expertExpirationTime,
 		});
 		Role = "expert";
 	}
