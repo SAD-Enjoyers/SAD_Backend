@@ -22,11 +22,15 @@ async function getPrivateProfile (req, res) {
 		}
 		let userData = convUser(user);
 		return res.status(200).json(success('User Profile:', { userData } ))
+
 	} else if (req.role == "expert") {
 		const expert = await Expert.findOne({ where: { expert_id: req.userName } });
 		if (!user) {
 			return res.status(404).json(error('User not found.', 404));
 		}
+		let expertData = convExpert(expert);
+		return res.status(200).json(success('Expert Profile:', { expertData } ))
+
 	} else {
 		return res.status(404).json(error('User not found.', 404));
 	}
