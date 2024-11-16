@@ -71,3 +71,34 @@ CREATE TABLE "Registers" (
 	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE NO ACTION ON UPDATE CASCADE
 );
+
+-- All categories
+CREATE TABLE "category" (
+	category_id smallserial NOT NULL PRIMARY KEY,
+	category varchar(30) NOT NULL UNIQUE
+);
+
+
+-- All Questions inforamtion
+CREATE TABLE "Question" (
+	user_id varchar(30) NOT NULL,
+	question_id serial NOT NULL,
+	question_name varchar(50) NOT NULL,
+	question_text text NOT NULL,
+	o1 text NOT NULL, 
+	o2 text NOT NULL,
+	o3 text NOT NULL,
+	o4 text NOT NULL,
+	right_answer smallint NOT NULL,
+	score NUMERIC(3, 2) DEFAULT 0.00,
+	number_of_voters smallint NOT NULL DEFAULT 0, 
+	visibility boolean NOT NULL DEFAULT true,
+	tag1 smallint,
+	tag2 smallint,
+	tag3 smallint,
+	PRIMARY KEY (question_id, user_id),
+	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE NO ACTION ON UPDATE CASCADE, -- it may challenge data integrity by delete account and create new account 
+	FOREIGN KEY (tag1) REFERENCES "category"(category_id) ON DELETE set null ON UPDATE CASCADE,
+	FOREIGN KEY (tag2) REFERENCES "category"(category_id) ON DELETE set null ON UPDATE CASCADE,
+	FOREIGN KEY (tag3) REFERENCES "category"(category_id) ON DELETE set null ON UPDATE CASCADE
+);
