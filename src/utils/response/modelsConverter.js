@@ -32,4 +32,33 @@ function convExpert (expert) {
 	return newExpert;
 }
 
-module.exports = { convUser, convExpert };
+function convCategory (category) {
+	let newcategory = [];
+	for (let i = 0; i < category.length; i++) {
+		newcategory.push({ categoryId: category[i].category_id, category: category[i].category });
+	}
+	return newcategory;
+}
+
+function convQuestion (question) {
+	let newQuestion = {
+		questionId: question.question_id,
+		userName: question.user_id,
+		questionName: question.question_name,
+		questionText: question.question_text,
+		o1: question.o1,
+		o2: question.o2,
+		o3: question.o3,
+		o4: question.o4,
+		rightAnswer: question.right_answer,
+		visibility: question.visibility,
+		tag1: question.tag1,
+		tag2: question.tag2,
+		tag3: question.tag3,
+		score: question.score,
+		numberOfVoters: question.number_of_voters,
+	};
+	return newQuestion;
+}
+
+module.exports = { convUser, convExpert, convCategory, convQuestion };
