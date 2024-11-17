@@ -65,34 +65,16 @@ const Question = sequelize.define('Question', {
 		defaultValue: true,
 	},
 	tag1: {
-		type: DataTypes.SMALLINT,
+		type: DataTypes.STRING(30),
 		allowNull: true,
-		references: {
-			model: 'Category',
-			key: 'category_id',
-		},
-		onDelete: 'SET NULL',
-		onUpdate: 'CASCADE',
 	},
 	tag2: {
-		type: DataTypes.SMALLINT,
+		type: DataTypes.STRING(30),
 		allowNull: true,
-		references: {
-			model: 'Category',
-			key: 'category_id',
-		},
-		onDelete: 'SET NULL',
-		onUpdate: 'CASCADE',
 	},
 	tag3: {
-		type: DataTypes.SMALLINT,
+		type: DataTypes.STRING(30),
 		allowNull: true,
-		references: {
-			model: 'Category',
-			key: 'category_id',
-		},
-		onDelete: 'SET NULL',
-		onUpdate: 'CASCADE',
 	},
 }, {
 	timestamps: false,

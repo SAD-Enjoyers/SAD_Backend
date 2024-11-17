@@ -15,6 +15,7 @@ const Category = sequelize.define('Category', {
 	category: {
 		type: DataTypes.STRING(30),
 		allowNull: false,
+		unique: true,
 	},
 },{
 	timestamps: false,

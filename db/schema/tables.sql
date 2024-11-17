@@ -93,12 +93,9 @@ CREATE TABLE "Question" (
 	score NUMERIC(3, 2) DEFAULT 0.00,
 	number_of_voters smallint NOT NULL DEFAULT 0, 
 	visibility boolean NOT NULL DEFAULT true,
-	tag1 smallint,
-	tag2 smallint,
-	tag3 smallint,
+	tag1 varchar(30),
+	tag2 varchar(30),
+	tag3 varchar(30),
 	PRIMARY KEY (question_id, user_id),
 	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE NO ACTION ON UPDATE CASCADE, -- it may challenge data integrity by delete account and create new account 
-	FOREIGN KEY (tag1) REFERENCES "Category"(category_id) ON DELETE set null ON UPDATE CASCADE,
-	FOREIGN KEY (tag2) REFERENCES "Category"(category_id) ON DELETE set null ON UPDATE CASCADE,
-	FOREIGN KEY (tag3) REFERENCES "Category"(category_id) ON DELETE set null ON UPDATE CASCADE
 );
