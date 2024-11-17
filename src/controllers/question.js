@@ -1,4 +1,4 @@
-const { Question, Category } = require('../models');
+const { Question } = require('../models');
 const { success, error } = require('../utils');
 
 async function addQuestion (req, res) {
