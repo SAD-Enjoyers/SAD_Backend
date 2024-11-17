@@ -137,10 +137,14 @@ async function sendForgotMail(req, res) {
 
 async function verifyRecoveryCode (req, res) {
 	const email = req.body.email;
-	const user_id = req.body.user_id;
 	const recoveryCode = req.body.recoveryCode;
 	const newPassword = req.body.newPassword;
 	const now = Date.now();
+	const user = await User.findOne({ where: { email }});
+	if(!user){
+		return res.status(400).json(error('User Not Found.', 400));
+	}
+	const user_id = user.user_id;
 	const userBackup = await BackupUser.findOne({ where: { user_id } });
 
 	if(!userBackup || !userBackup.recovery_code || !userBackup.generated_time){
@@ -152,7 +156,7 @@ async function verifyRecoveryCode (req, res) {
 	if(userBackup.recovery_code != recoveryCode){
 		return res.status(400).json(error('Recovery Code is not valid.', 400));
 	} else {
-		const user = await User.findOne({ where: { user_id } });
+		// const user = await User.findOne({ where: { user_id } });
 		// there is no need for user validation
 		const hashedPassword = await hashPassword(newPassword);
 		user.u_password = hashedPassword;
