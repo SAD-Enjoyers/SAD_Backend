@@ -36,4 +36,14 @@ async function scoreSubmission(req, res) {
 		{ score: question.score, numberOfVoters: question.number_of_voters }));
 }
 
-module.exports = { addQuestion, scoreSubmission };
+async function getQuestion(req, res) {
+	let question_id = req.query.questionId;
+	let question = await Question.findOne({ where: { question_id } });
+	if((req.userName != question.user_id) && (!question.visibility)){
+		return res.status(403).json(error("You do not have access to this question.", 403));
+	}
+	question = convQuestion(question);
+	return res.status(200).json(success("question", { question }));
+}
+
+module.exports = { addQuestion, scoreSubmission, getQuestion };
