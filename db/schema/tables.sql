@@ -82,7 +82,7 @@ CREATE TABLE "Category" (
 -- All Questions inforamtion
 CREATE TABLE "Question" (
 	user_id varchar(30) NOT NULL,
-	question_id serial NOT NULL,
+	question_id serial NOT NULL UNIQUE,
 	question_name varchar(50) NOT NULL,
 	question_text text NOT NULL,
 	o1 text NOT NULL, 
@@ -98,4 +98,14 @@ CREATE TABLE "Question" (
 	tag3 varchar(30),
 	PRIMARY KEY (question_id, user_id),
 	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE NO ACTION ON UPDATE CASCADE, -- it may challenge data integrity by delete account and create new account 
+);
+
+-- All Scores recorded
+CREATE TABLE "Recorded_scores" (
+	question_id INTEGER NOT NULL,
+	user_id varchar(30) NOT NULL,
+	score NUMERIC(3, 2) NOT NULL,
+	PRIMARY KEY (question_id, user_id),
+	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE NO ACTION ON UPDATE CASCADE,
+	FOREIGN KEY (question_id) REFERENCES "Question"(question_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
