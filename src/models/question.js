@@ -81,4 +81,36 @@ const Question = sequelize.define('Question', {
 	tableName: 'Question',
 });
 
-module.exports = { Question };
+const RecordedScores = sequelize.define('RecordedScores', {
+	question_id: {
+		type: DataTypes.INTEGER,
+		allowNull: false,
+		references: {
+			model: 'Question',
+			key: 'question_id',
+		},
+		onDelete: 'CASCADE',
+		onUpdate: 'CASCADE',
+		primaryKey: true,
+	},
+	user_id: {
+		type: DataTypes.STRING(30),
+		allowNull: false,
+		references: {
+			model: 'User',
+			key: 'user_id',
+		},
+		onDelete: 'NO ACTION',
+		onUpdate: 'CASCADE',
+		primaryKey: true,
+	},
+	score: {
+		type: DataTypes.DECIMAL(3, 2),
+		allowNull: false,
+	},
+}, {
+	tableName: 'Recorded_scores',
+	timestamps: false,
+});
+
+module.exports = { Question, RecordedScores };
