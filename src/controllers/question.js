@@ -39,8 +39,14 @@ async function scoreSubmission(req, res) {
 async function getQuestion(req, res) {
 	let question_id = req.query.questionId;
 	let question = await Question.findOne({ where: { question_id } });
-	if((req.userName != question.user_id) && (!question.visibility)){
-		return res.status(403).json(error("You do not have access to this question.", 403));
+	if(req.partialAccess){
+		if(!question.visibility){
+			return res.status(403).json(error("You do not have access to this question.", 403));
+		}
+	} else {
+		if((req.userName != question.user_id) && (!question.visibility)){
+			return res.status(403).json(error("You do not have access to this question.", 403));
+		}
 	}
 	question = convQuestion(question);
 	return res.status(200).json(success("question", { question }));
