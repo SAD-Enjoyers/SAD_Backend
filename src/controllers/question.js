@@ -1,5 +1,6 @@
 const { Question, RecordedScores } = require('../models');
 const { success, error, convQuestion } = require('../utils');
+const { Op } = require('sequelize');
 
 async function addQuestion (req, res) {
 	let question = await Question.create({ user_id: req.userName, question_name: req.body.questionName, 
@@ -52,4 +53,49 @@ async function getQuestion(req, res) {
 	return res.status(200).json(success("question", { question }));
 }
 
-module.exports = { addQuestion, scoreSubmission, getQuestion };
+async function questions(req, res) {
+	const { search, tags, sort } = req.query;
+
+	const filters = {
+		[Op.or]: [
+			{ visibility: true },
+			{ user_id: req.userName },
+		],
+	};
+
+	if (search) {
+		filters.question_text = {
+			[Op.iLike]: `%${search}%`,
+		};
+	}
+
+	if (tags) {
+		const tagList = tags.split(',');
+		filters[Op.and] = [
+			...filters[Op.and] || [],
+			{
+				[Op.or]: tagList.map(tag => ({
+					[Op.or]: [
+						{ tag1: tag },
+						{ tag2: tag },
+						{ tag3: tag },
+					],
+				})),
+			},
+		];
+	}
+
+	const order = [];
+	if (sort) {
+		order.push(sort.split('-'));
+	}
+
+	const questions = await Question.findAll({
+		where: filters,
+		order,
+	});
+
+	res.json({ questions });
+}
+
+module.exports = { addQuestion, scoreSubmission, getQuestion, questions };
