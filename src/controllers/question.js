@@ -56,15 +56,24 @@ async function getQuestion(req, res) {
 async function questions(req, res) {
 	const { search, tags, sort } = req.query;
 
-	const filters = {
-		[Op.or]: [
-			{ visibility: true },
-			{ user_id: req.userName },
-		],
-	};
+	let filters = {};
+	if(req.partialAccess){
+		filters = {
+			[Op.or]: [
+				{ visibility: true },
+			],
+		};
+	} else {
+		filters = {
+			[Op.or]: [
+				{ visibility: true },
+				{ user_id: req.userName },
+			],
+		};
+	}
 
 	if (search) {
-		filters.question_text = {
+		filters.question_name = {
 			[Op.iLike]: `%${search}%`,
 		};
 	}
@@ -95,7 +104,13 @@ async function questions(req, res) {
 		order,
 	});
 
-	res.json({ questions });
+
+	let result = [];
+	for (let q of questions){
+		result.push(convQuestion(q.dataValues));
+	}
+
+	return res.status(200).json(success("questions", { result }));
 }
 
 module.exports = { addQuestion, scoreSubmission, getQuestion, questions };
