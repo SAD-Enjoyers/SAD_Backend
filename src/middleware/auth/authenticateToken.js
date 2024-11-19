@@ -36,4 +36,36 @@ async function authenticateToken(req, res, next) {
 	}
 }
 
-module.exports = authenticateToken;
+async function partialAccess(req, res, next){
+	const authHeader = req.headers['authorization'];
+	const token = authHeader && authHeader.split(' ')[1];
+
+	if(token){
+		try {
+			const decoded = jwt.verify(token, JWT_SECRET);
+			req.userName = decoded.userName;
+			req.role = req.headers['x-role'];
+
+			const currentTime = Math.floor(Date.now() / 1000);
+			const timeLeft = Math.floor((decoded.exp - currentTime)/60); // time in minute
+			req.timeLeft = timeLeft;
+			if(timeLeft <= JWTrecoveryTime && req.role == "user"){
+				const newToken = jwt.sign({ userName: decoded.userName }, JWT_SECRET, { expiresIn: userExpirationTime });
+				req.token = newToken;
+				res.setHeader('x-new-token', newToken);
+				req.updateJWT = true;
+			} else {
+				req.updateJWT = false;
+			}
+			req.partialAccess = false;
+			next();
+		} catch (err) {
+			return res.status(403).json(error('Invalid or expired token.', 403));
+		}
+	} else {
+		req.partialAccess = true;
+		next();
+	}
+}
+
+module.exports = { authenticateToken, partialAccess };
