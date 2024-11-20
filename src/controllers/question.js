@@ -96,7 +96,12 @@ async function questions(req, res) {
 
 	const order = [];
 	if (sort) {
-		order.push(sort.split('-'));
+		let sTemp = sort.split('-');
+		if (sTemp[0] == "score"){
+			order.push(sTemp);
+		} else {
+			order.push(["question_name", sTemp[1]]);
+		}
 	}
 
 	const questions = await Question.findAll({
