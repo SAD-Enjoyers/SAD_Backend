@@ -3,6 +3,7 @@
  *	Create Tables structures and Views
  *
  */
+-------------------------------------- Users --------------------------------------
 
 -- User Account Information
 CREATE TABLE IF NOT EXISTS "User" (
@@ -45,22 +46,45 @@ CREATE TABLE IF NOT EXISTS "Expert" (
 	PRIMARY KEY (expert_id)
 );
 
+-------------------------------------- Common --------------------------------------
+
+-- All categories
+CREATE TABLE "Category" (
+	category_id smallserial NOT NULL PRIMARY KEY,
+	category varchar(30) NOT NULL UNIQUE
+);
+
+-------------------------------------- Services --------------------------------------
 
 -- All Educational Service Information
 CREATE TABLE "Educational_service" (
-	user_id varchar(30) NOT NULL,
-	service_id varchar(20) NOT NULL,		-- hash of user_id + e_name + service_type
-	s_name varchar(70) NOT NULL,
+	user_id varchar(30) NOT NULL UNIQUE,
+	service_id serial UNIQUE,
+	s_name varchar(150) NOT NULL,
 	description text,
-	s_level varchar(15) DEFAULT 'Beginner',	-- Beginner, Medium, Advanced
-	price numeric(10, 2) NOT NULL,
-	service_type smallint NOT NULL,		-- 1: video, 2: article, 3: test
-	activity_status char(1) DEFAULT 'P',	-- A: Active, S: suspended, P: passive
-	achieved_score float DEFAULT 0,		-- mean of user scores
-	achieved_from integer DEFAULT 0,		-- number of attended user
+	s_level char(1) NOT NULL, 					-- 1:Beginner, 2:Medium, 3:Advanced
+	price numeric(6, 2) DEFAULT 0.0,
+	service_type char(1) NOT NULL, 				-- 1:Exam, 2:Article, 3: Video
+	activity_status char(1) DEFAULT 'P',		-- A: Active, S: suspended, P: passive
+	score NUMERIC(3, 2) NOT NULL DEFAULT 0.00,
+	number_of_voters smallint NOT NULL DEFAULT 0, 
 	image varchar(250),
-	PRIMARY KEY (service_id),
+	tag1 varchar(30),
+	tag2 varchar(30),
+	tag3 varchar(30),
+	PRIMARY KEY (service_id, user_id),
 	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE NO ACTION ON UPDATE CASCADE
+);
+
+
+-- All Service Scores recorded
+CREATE TABLE "Service_recorded_scores" (
+	service_id INTEGER NOT NULL,
+	user_id varchar(30) NOT NULL,
+	score NUMERIC(3, 2) NOT NULL,
+	PRIMARY KEY (service_id, user_id),
+	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE NO ACTION ON UPDATE CASCADE,
+	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Register On Services
@@ -72,10 +96,15 @@ CREATE TABLE "Registers" (
 	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE NO ACTION ON UPDATE CASCADE
 );
 
--- All categories
-CREATE TABLE "Category" (
-	category_id smallserial NOT NULL PRIMARY KEY,
-	category varchar(30) NOT NULL UNIQUE
+-------------------------------------- Exam --------------------------------------
+
+-- Exam Information
+CREATE TABLE "Exam" (
+	service_id integer UNIQUE,
+	exam_duration integer NOT NULL,
+	min_pass_score integer NOT NULL,
+	PRIMARY KEY (service_id),
+	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
@@ -100,7 +129,7 @@ CREATE TABLE "Question" (
 	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE NO ACTION ON UPDATE CASCADE -- it may challenge data integrity by delete account and create new account 
 );
 
--- All Scores recorded
+-- All Question Scores recorded
 CREATE TABLE "Recorded_scores" (
 	question_id INTEGER NOT NULL,
 	user_id varchar(30) NOT NULL,
