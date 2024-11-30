@@ -58,7 +58,7 @@ CREATE TABLE "Category" (
 
 -- All Educational Service Information
 CREATE TABLE "Educational_service" (
-	user_id varchar(30) NOT NULL UNIQUE,
+	user_id varchar(30) NOT NULL,
 	service_id serial UNIQUE,
 	s_name varchar(150) NOT NULL,
 	description text,

@@ -9,7 +9,6 @@ const EducationalService = sequelize.define('EducationalService', {
 	user_id: {
 		type: DataTypes.STRING(30),
 		allowNull: false,
-		unique: true,
 		references: {
 			model: 'User',
 			key: 'user_id',
