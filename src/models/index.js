@@ -3,6 +3,7 @@ const expert = require('./expert');
 const educationalService = require('./educationalService');
 const category = require('./category');
 const question = require('./question');
+const exam = require('./exam');
 
 module.exports = {
 	...user,
@@ -10,4 +11,5 @@ module.exports = {
 	...educationalService,
 	...category,
 	...question,
+	...exam,
 };
