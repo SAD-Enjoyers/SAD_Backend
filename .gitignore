@@ -4,3 +4,7 @@
 my_notes.txt
 package-lock.json
 *_test.js
+/src/uploads/*/*.jpg
+/src/uploads/*/*.jpeg
+/src/uploads/*/*.png
+/src/uploads/*/*.webp
