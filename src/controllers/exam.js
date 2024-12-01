@@ -97,4 +97,8 @@ async function editExam (req, res) {
 	}
 }
 
-module.exports = { makeExam, editExam, preview };
+async function exams(req, res) {
+
+}
+
+module.exports = { makeExam, editExam, preview, exams };
