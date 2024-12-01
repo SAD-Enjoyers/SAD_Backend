@@ -32,13 +32,47 @@ async function makeExam(req, res) {
 
 		await transaction.commit();
 
-		res.status(201).json(success('Exam created successfully', { serviceId: newService.service_id }));
+		res.status(201).json(success('Exam created successfully.', { serviceId: newService.service_id }));
 	} catch (err) {
 		await transaction.rollback();
 
 		logger.error(`Error: ${req.method}, ${req.url}: \n${err.message} \n`);
-		res.status(500).json(error('Error creating exam or service', 500));
+		res.status(500).json(error('Error creating exam or service.', 500));
 	}
 }
 
-module.exports = { makeExam };
+async function editExam (req, res) {
+	if (req.body.activityStatus){
+		if (!(req.body.activityStatus == 'P' || req.body.activityStatus == 'A'))
+			return res.status(403).json(error('Permission denied.', 403));
+	}
+	if (!req.body.serviceId)
+		return res.status(400).json(error('Misssing serviceId.', 400));
+
+	let service = await EducationalService.findOne( 
+		{ where: { service_id: req.body.serviceId, user_id: req.userName } });
+	if(!service)
+		return res.status(404).json(error('Exam not found.', 404));
+	let exam = await Exam.findOne({ where: { service_id: req.body.serviceId } });
+
+	try{
+		const transaction = await sequelize.transaction();
+		await service.update({
+			s_name: req.body.name, description: req.body.description, s_level: req.body.level, 
+			price: req.body.price, activity_status: req.body.activityStatus, 
+			image: req.body.image, tag1: req.body.tag1, tag2: req.body.tag2, tag3: req.body.tag3
+		}, { transaction })
+		await exam.update({ exam_duration: req.body.examDuration, min_pass_score: req.body.minPassScore}, { transaction });
+		await transaction.commit();
+
+		res.status(201).json(success('Exam edited successfully.', { serviceId: service.service_id })); 
+		// return data
+	} catch (err) {
+		await transaction.rollback();
+
+		logger.error(`Error: ${req.method}, ${req.url}: \n${err.message} \n`);
+		res.status(500).json(error('Error editing exam information.', 500));
+	}
+}
+
+module.exports = { makeExam, editExam };
