@@ -1,5 +1,5 @@
-const { Exam, EducationalService, ServiceRecordedScores } = require('../models');
-const { success, error } = require('../utils');
+const { Exam, EducationalService, ServiceRecordedScores, Registers, SelectedQuestions } = require('../models');
+const { success, error, convPreviewExam } = require('../utils');
 const { Op } = require('sequelize');
 const { sequelize } = require('../configs/db');
 
@@ -41,4 +41,26 @@ async function makeExam(req, res) {
 	}
 }
 
-module.exports = { makeExam };
+async function preview(req, res) {
+	req.query.serviceId = parseInt(req.query.serviceId);
+	let service = await EducationalService.findOne({ where: { service_id: req.query.serviceId } });
+	if (!service || (! service.activity_status == 'A'))
+		return res.status(404).json(error('Service not found.', 404));
+
+	const exam = await Exam.findOne({ where: { service_id: req.query.serviceId } });
+	const userCount = await Registers.count({ where: { service_id: req.query.serviceId }, });
+	const questionCount = await SelectedQuestions.count({ where: { service_id: req.query.serviceId } });
+
+	service = convPreviewExam({ ...service.dataValues, ...exam.dataValues, userCount, questionCount });
+
+	let privatePage = false;
+	if (req.userName){
+		const registered = await Registers.findOne({ where: { service_id: req.query.serviceId, user_id: req.userName } });
+		if (req.userName == service.user_id || registered)
+			privatePage = true;
+	}
+
+	res.status(200).json(success('Exam', { Exam: service, privatePage }));
+}
+
+module.exports = { makeExam, preview };

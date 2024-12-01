@@ -61,4 +61,26 @@ function convQuestion (question) {
 	return newQuestion;
 }
 
-module.exports = { convUser, convExpert, convCategory, convQuestion };
+function convPreviewExam (exam) {
+	let newExam = {
+		userId: exam.user_id,
+		serviceId: exam.service_id,
+		name: exam.s_name,
+		description: exam.description,
+		level: exam.s_level,
+		price: exam.price,
+		score: exam.score,
+		numberOfVoters: exam.number_of_voters,
+		image: exam.image,
+		tag1: exam.tag1,
+		tag2: exam.tag2,
+		tag3: exam.tag3,
+		numberOfMembers: exam.userCount,
+		examDuration: exam.exam_duration,
+		minPassScore: exam.min_pass_score,
+		numberOfQuestion: exam.questionCount
+	}
+	return newExam;
+}
+
+module.exports = { convUser, convExpert, convCategory, convQuestion, convPreviewExam };
