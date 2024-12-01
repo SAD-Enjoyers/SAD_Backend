@@ -33,4 +33,37 @@ const Exam = sequelize.define('Exam', {
 	timestamps: false, 
 });
 
-module.exports = { Exam };
+const SelectedQuestions = sequelize.define('SelectedQuestions', {
+	service_id: {
+		type: DataTypes.INTEGER,
+		allowNull: false,
+		references: {
+			model: 'Educational_service',
+			key: 'service_id',
+		},
+		onDelete: 'CASCADE',
+		onUpdate: 'CASCADE',
+		primaryKey: true,
+	},
+	question_id: {
+		type: DataTypes.INTEGER,
+		allowNull: false,
+		references: {
+			model: 'Question',
+			key: 'question_id',
+		},
+		onDelete: 'CASCADE',
+		onUpdate: 'CASCADE',
+		primaryKey: true,
+	},
+	sort_number: {
+		type: DataTypes.SMALLINT,
+		allowNull: true,
+		comment: 'Defines the order of the questions in the service',
+	},
+}, {
+	tableName: 'Selected_question',
+	timestamps: false,
+});
+
+module.exports = { Exam, SelectedQuestions };

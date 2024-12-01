@@ -138,3 +138,13 @@ CREATE TABLE "Recorded_scores" (
 	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE NO ACTION ON UPDATE CASCADE,
 	FOREIGN KEY (question_id) REFERENCES "Question"(question_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+-- Selected question for exam
+CREATE TABLE "Selected_question" (
+	service_id INTEGER NOT NULL,
+	question_id INTEGER NOT NULL,
+	sort_number SMALLINT,
+	PRIMARY KEY (service_id, question_id),
+	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE CASCADE ON UPDATE CASCADE,
+	FOREIGN KEY (question_id) REFERENCES "Question"(question_id) ON DELETE CASCADE ON UPDATE CASCADE
+);

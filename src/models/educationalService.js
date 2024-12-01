@@ -119,4 +119,32 @@ const ServiceRecordedScores = sequelize.define('ServiceRecordedScores', {
 	timestamps: false,
 });
 
-module.exports = { EducationalService, ServiceRecordedScores };
+const Registers = sequelize.define('Registers', {
+	user_id: {
+		type: DataTypes.STRING(30),
+		allowNull: false,
+		references: {
+			model: 'User',
+			key: 'user_id',
+		},
+		onDelete: 'CASCADE',
+		onUpdate: 'CASCADE',
+		primaryKey: true,
+	},
+	service_id: {
+		type: DataTypes.STRING(20),
+		allowNull: false,
+		references: {
+			model: 'Educational_service',
+			key: 'service_id',
+		},
+		onDelete: 'NO ACTION',
+		onUpdate: 'CASCADE',
+		primaryKey: true,
+	},
+}, {
+	tableName: 'Registers',
+	timestamps: false,
+});
+
+module.exports = { EducationalService, ServiceRecordedScores, Registers };
