@@ -10,8 +10,16 @@ async function makeExam(req, res) {
 	else if (req.body.level == 'Advanced') req.body.level = '3';
 	else return res.status(400).json(error('Level is not valid.', 400 ));
 	
-	if (! (req.body.activityStatus == 'A' || req.body.activityStatus == 'P'))
-		return res.status(400).json(error('Activity state is not valid.', 400));
+	if (req.body.activityStatus){
+		if (req.body.activityStatus == 'Passive')
+			req.body.activityStatus = 'P';
+		else if (req.body.activityStatus == 'Active')
+			req.body.activityStatus = 'A';
+		else if (req.body.activityStatus == 'Suspended')
+			return res.status(403).json(error('Permission denied.', 403));
+		else
+			return res.status(400).json(error('Activity state is not valid.', 400));
+	}
 
 	if (req.body.examDuration < 1)
 		return res.status(400).json(error('Exam duration is not valid.', 400));
@@ -60,14 +68,27 @@ async function preview(req, res) {
 			privatePage = true;
 	}
 
+	// no need for flag
 	res.status(200).json(success('Exam', { Exam: service, privatePage }));
 }
 
 async function editExam (req, res) {
 	if (req.body.activityStatus){
-		if (!(req.body.activityStatus == 'P' || req.body.activityStatus == 'A'))
+		if (req.body.activityStatus == 'Passive')
+			req.body.activityStatus = 'P';
+		else if (req.body.activityStatus == 'Active')
+			req.body.activityStatus = 'A';
+		else 
 			return res.status(403).json(error('Permission denied.', 403));
 	}
+
+	if(req.body.level){
+		if (req.body.level == 'Beginner') req.body.level = '1';
+		else if (req.body.level == 'Medium') req.body.level = '2';
+		else if (req.body.level == 'Advanced') req.body.level = '3';
+		else return res.status(400).json(error('Level is not valid.', 400 ));
+	}
+
 	if (!req.body.serviceId)
 		return res.status(400).json(error('Misssing serviceId.', 400));
 
@@ -88,7 +109,6 @@ async function editExam (req, res) {
 		await transaction.commit();
 
 		res.status(201).json(success('Exam edited successfully.', { serviceId: service.service_id })); 
-		// return data
 	} catch (err) {
 		await transaction.rollback();
 
@@ -97,4 +117,36 @@ async function editExam (req, res) {
 	}
 }
 
-module.exports = { makeExam, editExam, preview };
+async function examPage(req, res) {
+	let service = await EducationalService.findOne({ where: { service_id: req.query.serviceId } });
+	let users = await Registers.findOne({ where: { service_id: req.query.serviceId, user_id: req.userName } });
+	if (service.service_type == '1'){
+		if (req.userName == service.user_id)
+			privatePage(req, res, service);
+		else if (users)
+			publicExam(req, res);
+		else
+			return res.status(403).json(error('Permission denied.', 403));
+	} else
+		return res.status(303).json(error('See other services.', 303));
+}
+
+async function privateExam(req, res, service) {
+	const exam = await Exam.findOne({ where: { service_id: req.query.serviceId } });
+	const userCount = await Registers.count({ where: { service_id: req.query.serviceId }, });
+	const questionCount = await SelectedQuestions.count({ where: { service_id: req.query.serviceId } });
+
+	service = convPreviewExam({ ...service.dataValues, ...exam.dataValues, userCount, questionCount });
+
+	let privatePage = false;
+	if (req.userName){
+		const registered = await Registers.findOne({ where: { service_id: req.query.serviceId, user_id: req.userName } });
+		if (req.userName == service.user_id || registered)
+			privatePage = true;
+	}	
+}
+
+async function publicExam(req, res, service) {
+}
+
+module.exports = { makeExam, editExam, preview, examPage };
