@@ -90,7 +90,7 @@ CREATE TABLE "Service_recorded_scores" (
 -- Register On Services
 CREATE TABLE "Registers" (
 	user_id varchar(30) NOT NULL,
-	service_id char(20) NOT NULL,
+	service_id INTEGER NOT NULL,
 	PRIMARY KEY (user_id, service_id),
 	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE NO ACTION ON UPDATE CASCADE

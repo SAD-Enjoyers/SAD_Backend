@@ -132,7 +132,7 @@ const Registers = sequelize.define('Registers', {
 		primaryKey: true,
 	},
 	service_id: {
-		type: DataTypes.STRING(20),
+		type: DataTypes.INTEGER,
 		allowNull: false,
 		references: {
 			model: 'Educational_service',
