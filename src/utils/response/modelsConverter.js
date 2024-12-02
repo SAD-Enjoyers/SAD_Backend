@@ -83,4 +83,35 @@ function convPreviewExam (exam) {
 	return newExam;
 }
 
-module.exports = { convUser, convExpert, convCategory, convQuestion, convPreviewExam };
+function convPrivateExam (exam) {
+	if ('A' == exam.activity_status)
+		exam.activity_status = "Active";
+	else if ('P' == exam.activity_status)
+		exam.activity_status = "Passive";
+	else
+		exam.activity_status = "Suspended";
+
+	let newExam = {
+		userId: exam.user_id,
+		serviceId: exam.service_id,
+		name: exam.s_name,
+		description: exam.description,
+		level: exam.s_level,
+		price: exam.price,
+		activityStatus: exam.activity_status,
+		score: exam.score,
+		numberOfVoters: exam.number_of_voters,
+		image: exam.image,
+		tag1: exam.tag1,
+		tag2: exam.tag2,
+		tag3: exam.tag3,
+		examDuration: exam.exam_duration,
+		minPassScore: exam.min_pass_score,
+		numberOfMembers: exam.userCount,
+		numberOfQuestion: exam.questionCount
+	}
+	return newExam;
+}
+
+module.exports = { convUser, convExpert, convCategory, convQuestion, convPreviewExam,
+	convPrivateExam };

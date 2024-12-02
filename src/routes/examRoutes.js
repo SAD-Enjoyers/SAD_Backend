@@ -7,6 +7,6 @@ const examRoutes = express.Router();
 examRoutes.post('/make-exam', authenticateToken , makeExam);
 examRoutes.get('/preview', partialAccess, preview);
 examRoutes.put('/edit-exam', authenticateToken, editExam);
-examRoutes.get('/:id', authenticateToken, examPage);
+examRoutes.get('/:serviceId', authenticateToken, examPage);
 
 module.exports = examRoutes;

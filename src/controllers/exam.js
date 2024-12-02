@@ -1,5 +1,6 @@
-const { Exam, EducationalService, ServiceRecordedScores, Registers, SelectedQuestions } = require('../models');
-const { success, error, convPreviewExam } = require('../utils');
+const { Exam, EducationalService, ServiceRecordedScores, 
+	Registers, SelectedQuestions, Question } = require('../models');
+const { success, error, convPreviewExam, convPrivateExam } = require('../utils');
 const { Op } = require('sequelize');
 const { sequelize } = require('../configs/db');
 
@@ -117,36 +118,32 @@ async function editExam (req, res) {
 	}
 }
 
+async function privateExam(req, res, service, serviceId) {
+	const exam = await Exam.findOne({ where: { service_id: serviceId } });
+	const userCount = await Registers.count({ where: { service_id: serviceId } });
+	const questionCount = await SelectedQuestions.count({ where: { service_id: serviceId } });
+
+	service = convPrivateExam({ ...service.dataValues, ...exam.dataValues, userCount, questionCount });
+
+	return res.status(200).json(success('private', service));
+}
+
+async function publicExam(req, res, service, serviceId) {
+}
+
 async function examPage(req, res) {
-	let service = await EducationalService.findOne({ where: { service_id: req.query.serviceId } });
-	let users = await Registers.findOne({ where: { service_id: req.query.serviceId, user_id: req.userName } });
+	const { serviceId } = req.params;
+	let service = await EducationalService.findOne({ where: { service_id: serviceId } });
+	let users = await Registers.findOne({ where: { service_id: serviceId, user_id: req.userName } });
 	if (service.service_type == '1'){
 		if (req.userName == service.user_id)
-			privatePage(req, res, service);
+			privateExam(req, res, service, serviceId);
 		else if (users)
-			publicExam(req, res);
+			publicExam(req, res, service, serviceId);
 		else
 			return res.status(403).json(error('Permission denied.', 403));
 	} else
 		return res.status(303).json(error('See other services.', 303));
-}
-
-async function privateExam(req, res, service) {
-	const exam = await Exam.findOne({ where: { service_id: req.query.serviceId } });
-	const userCount = await Registers.count({ where: { service_id: req.query.serviceId }, });
-	const questionCount = await SelectedQuestions.count({ where: { service_id: req.query.serviceId } });
-
-	service = convPreviewExam({ ...service.dataValues, ...exam.dataValues, userCount, questionCount });
-
-	let privatePage = false;
-	if (req.userName){
-		const registered = await Registers.findOne({ where: { service_id: req.query.serviceId, user_id: req.userName } });
-		if (req.userName == service.user_id || registered)
-			privatePage = true;
-	}	
-}
-
-async function publicExam(req, res, service) {
 }
 
 module.exports = { makeExam, editExam, preview, examPage };
