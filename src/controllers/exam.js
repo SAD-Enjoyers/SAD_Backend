@@ -178,4 +178,34 @@ async function privateQuestions(req, res) {
 	return res.status(200).json(success('questions', selectedQuestions));
 }
 
-module.exports = { makeExam, editExam, preview, examPage, privateQuestions };
+async function addQuestion(req, res) {
+	const { serviceId, questionId } = req.body;
+	let service = await EducationalService.findOne({ where: { service_id: serviceId } });	
+
+	if (service.service_type != '1')
+		return res.status(303).json(error('See other services.', 303));
+
+	if (service.user_id != req.userName)
+		return res.status(403).json(error('Permission denied.', 403));
+
+	let question = await Question.findOne({ where: { question_id: req.body.questionId } });
+
+	if (question.user_id != req.userName && !question.visibility)
+		return res.status(403).json(error('Question cannot be select.', 403));
+
+	const isThere = await SelectedQuestions.findOne({ where: 
+		{ service_id: serviceId, question_id: questionId } });
+
+	if (isThere)
+		return res.status(400).json(error('The question has already been selected.', 400));
+
+	const questionCount = await SelectedQuestions.count({ where: { service_id: serviceId } });
+	const newquestion = await SelectedQuestions.create(
+		{ service_id: serviceId, question_id: questionId, sort_number: questionCount+1 });
+
+	res.status(201).json(success('Question added.', { serviceId: newquestion.service_id, 
+		questionId: newquestion.question_id, sortNumber: newquestion.sort_number}));
+
+}
+
+module.exports = { makeExam, editExam, preview, examPage, privateQuestions, addQuestion };
