@@ -2,7 +2,7 @@ const { Exam, EducationalService, ServiceRecordedScores,
 	Registers, SelectedQuestions, Question } = require('../models');
 const { success, error, convPreviewExam, convPrivateExam } = require('../utils');
 const { Op } = require('sequelize');
-const { sequelize } = require('../configs/db');
+const { sequelize, logger } = require('../configs');
 
 async function makeExam(req, res) {
 	req.body.serviceType = '1';
@@ -28,8 +28,8 @@ async function makeExam(req, res) {
 	if (req.body.minPassScore > 100 && req.body.minPassScore < 0)
 		return res.status(400).json(error('Minimum grade needed to pass exam is not valid.', 400));
 
+	const transaction = await sequelize.transaction();
 	try {
-		const transaction = await sequelize.transaction();
 		const newService = await EducationalService.create({ user_id: req.userName,
 			s_name: req.body.name, description: req.body.description, s_level: req.body.level, 
 			price: req.body.price, service_type: req.body.serviceType, 
@@ -99,8 +99,8 @@ async function editExam (req, res) {
 		return res.status(404).json(error('Exam not found.', 404));
 	let exam = await Exam.findOne({ where: { service_id: req.body.serviceId } });
 
+	const transaction = await sequelize.transaction();
 	try{
-		const transaction = await sequelize.transaction();
 		await service.update({
 			s_name: req.body.name, description: req.body.description, s_level: req.body.level, 
 			price: req.body.price, activity_status: req.body.activityStatus, 
@@ -205,7 +205,48 @@ async function addQuestion(req, res) {
 
 	res.status(201).json(success('Question added.', { serviceId: newquestion.service_id, 
 		questionId: newquestion.question_id, sortNumber: newquestion.sort_number}));
-
 }
 
-module.exports = { makeExam, editExam, preview, examPage, privateQuestions, addQuestion };
+async function deleteQuestion(req, res) {
+	const { serviceId, questionId, sortNumber } = req.body;
+	let service = await EducationalService.findOne({ where: { service_id: serviceId } });
+
+	if (service.service_type != '1')
+		return res.status(303).json(error('See other services.', 303));
+
+	if (service.user_id != req.userName)
+		return res.status(403).json(error('Permission denied.', 403));
+
+	const transaction = await sequelize.transaction();
+	try{
+		const deleted = await SelectedQuestions.destroy({
+			where: { service_id: serviceId, question_id: questionId, sort_number: sortNumber },
+		}, { transaction });
+
+		if (!deleted){
+			await transaction.commit();
+			return res.status(404).json(error('Question not found in the selected list.', 404));
+		}
+
+		await SelectedQuestions.update(
+			{ sort_number: sequelize.literal('sort_number - 1') },
+			{
+				where: {
+					service_id: serviceId,
+					sort_number: { [Op.gt]: sortNumber },
+				},
+			},
+		{ transaction });
+		await transaction.commit();
+
+		res.status(200).json(success('Question deleted and sort numbers updated successfully.', 200));
+	} catch (err) {
+		await transaction.rollback(); // have bugs deleted question not backed. 
+
+		logger.error(`Error: ${req.method}, ${req.url}: \n${err.message} \n`);
+		res.status(500).json(error('Error deleting question.', 500));
+	}
+}
+
+module.exports = { makeExam, editExam, preview, examPage, 
+	privateQuestions, addQuestion, deleteQuestion };
