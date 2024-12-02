@@ -146,4 +146,36 @@ async function examPage(req, res) {
 		return res.status(303).json(error('See other services.', 303));
 }
 
-module.exports = { makeExam, editExam, preview, examPage };
+async function privateQuestions(req, res) {
+	const { serviceId } = req.params;
+	let service = await EducationalService.findOne({ where: { service_id: serviceId } });	
+
+	if (service.service_type != '1')
+		return res.status(303).json(error('See other services.', 303));
+
+	if (service.user_id != req.userName)
+		return res.status(403).json(error('Permission denied.', 403));
+
+	const selectedQuestions = await SelectedQuestions.findAll({ where: { service_id: serviceId },
+		include: [
+			{
+				model: Question,
+				attributes: [
+					'question_id', 'question_name', 'question_text', 'o1', 'o2', 'o3', 'o4',
+					'right_answer', 'score', 'number_of_voters', 'visibility',
+					'tag1', 'tag2', 'tag3', 'user_id',
+				],
+			},
+		],
+		order: [['sort_number', 'ASC']],
+	});
+
+	selectedQuestions.map((item) => ({
+		sortNumber: item.sort_number,
+		...item.Question.toJSON(),
+	}));
+
+	return res.status(200).json(success('questions', selectedQuestions));
+}
+
+module.exports = { makeExam, editExam, preview, examPage, privateQuestions };
