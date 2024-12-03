@@ -100,13 +100,22 @@ async function editExam (req, res) {
 async function exams(req, res) {
 	const { search, tags, sort, level } = req.query;
 
+	let s_level = '1';
+	if(level){
+		if (level == 'Beginner') s_level = '1';
+		else if (level == 'Medium') s_level = '2';
+		else if (level == 'Advanced') s_level = '3';
+		else return res.status(400).json(error('Level is not valid.', 400 ));
+	} else 
+		s_level = [ '1', '2', '3' ];
+
 	let filters = {};
 	if(req.partialAccess){
 		filters = {
 			[Op.or]: [
 				{ activity_status: 'A' },
 			], [Op.and]: [
-				{ service_type: '1'},
+				{ service_type: '1', s_level: s_level },
 			],
 		};
 	} else {
@@ -115,7 +124,7 @@ async function exams(req, res) {
 				{ activity_status: 'A' },
 				{ user_id: req.userName },
 			], [Op.and]: [
-				{ service_type: '1'},
+				{ service_type: '1', s_level: s_level },
 			],
 		};
 	}
