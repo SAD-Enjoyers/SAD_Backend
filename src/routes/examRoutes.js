@@ -1,6 +1,6 @@
 const express = require('express');
 const { makeExam, preview, editExam, examPage, 
-	privateQuestions, addQuestion, deleteQuestion } = require('../controllers/exam');
+	privateQuestions, addQuestion, deleteQuestion, reorderQuestions } = require('../controllers/exam');
 const { authenticateToken, partialAccess } = require('../middleware');
 
 const examRoutes = express.Router();
@@ -12,5 +12,6 @@ examRoutes.get('/:serviceId', authenticateToken, examPage);
 examRoutes.get('/questions/:serviceId', authenticateToken, privateQuestions);
 examRoutes.post('/add-question/', authenticateToken, addQuestion);
 examRoutes.delete('/delete-question/', authenticateToken, deleteQuestion);
+examRoutes.put('/reorder-questions/', authenticateToken, reorderQuestions);
 
 module.exports = examRoutes;

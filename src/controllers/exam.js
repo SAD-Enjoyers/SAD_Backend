@@ -236,7 +236,7 @@ async function deleteQuestion(req, res) {
 					sort_number: { [Op.gt]: sortNumber },
 				},
 			},
-		{ transaction });
+		{ transaction }); // should move transaction to where?
 		await transaction.commit();
 
 		res.status(200).json(success('Question deleted and sort numbers updated successfully.', 200));
@@ -248,5 +248,51 @@ async function deleteQuestion(req, res) {
 	}
 }
 
+async function reorderQuestions(req, res) {
+	const { serviceId, reorderedQuestions } = req.body;
+	let service = await EducationalService.findOne({ where: { service_id: serviceId } });	
+
+	if (service.service_type != '1')
+		return res.status(303).json(error('See other services.', 303));
+
+	if (service.user_id != req.userName)
+		return res.status(403).json(error('Permission denied.', 403));
+
+	const currentQuestions = await SelectedQuestions.findAll({
+		where: { service_id: serviceId }
+	});
+
+	// if check for also new sort number is good
+	const currentQuestionIds = currentQuestions.map((q) => q.question_id);
+	const inputQuestionIds = reorderedQuestions.map((q) => q.questionId);
+	if (
+		currentQuestionIds.length !== inputQuestionIds.length || // Check for missing/extra questions
+		!currentQuestionIds.every((id) => inputQuestionIds.includes(id)) // Check for mismatched IDs
+	)
+		return res.status(400).json(error('The provided questions do not match the selected questions for the course.', 400));
+
+	const transaction = await SelectedQuestions.sequelize.transaction();
+	try {
+		await Promise.all(
+			reorderedQuestions.map((q) =>
+				SelectedQuestions.update(
+					{ sort_number: q.sortNumber },
+					{
+						where: { service_id: serviceId, question_id: q.questionId },
+						transaction,
+					}
+				)
+			)
+		);
+		await transaction.commit();
+		res.status(204).json(success('Selected questions reordered successfully.'));
+
+	} catch (err) {
+		await transaction.rollback();
+		logger.error(`Error: ${req.method}, ${req.url}: \n${err.message} \n`);
+		res.status(500).json(error('Failed to reorder selected questions.', 500));
+	}
+}
+
 module.exports = { makeExam, editExam, preview, examPage, 
-	privateQuestions, addQuestion, deleteQuestion };
+	privateQuestions, addQuestion, deleteQuestion, reorderQuestions };
