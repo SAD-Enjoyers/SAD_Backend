@@ -62,6 +62,13 @@ function convQuestion (question) {
 }
 
 function convPreviewExam (exam) {
+	if ('1' == exam.s_level)
+		exam.s_level = "Beginner";
+	else if ('2' == exam.s_level)
+		exam.s_level = "Medium";
+	else
+		exam.s_level = "Advanced";
+
 	let newExam = {
 		userId: exam.user_id,
 		serviceId: exam.service_id,
@@ -90,6 +97,13 @@ function convPrivateExam (exam) {
 		exam.activity_status = "Passive";
 	else
 		exam.activity_status = "Suspended";
+
+	if ('1' == exam.s_level)
+		exam.s_level = "Beginner";
+	else if ('2' == exam.s_level)
+		exam.s_level = "Medium";
+	else
+		exam.s_level = "Advanced";
 
 	let newExam = {
 		userId: exam.user_id,
