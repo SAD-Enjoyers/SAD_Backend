@@ -57,5 +57,36 @@ async function examList(req, res) {
 	res.status(200).json(success('Exam cards', createdExams.concat(registeredExams)));
 }
 
+async function editProfile(req, res) {
+	const user = await User.findByPk(req.userName);
+	if (!user) {
+		return res.status(404).json({ message: 'User not found.' });
+	}
 
-module.exports = { getPrivateProfile, examList };
+	if (user.user_id != req.body.userId){
+		const exist = await User.findByPk(req.body.userId); 
+		if (exist)
+			return res.status(400).json(error('This UserID has already been used.', 400));
+	}
+
+	const allowedFields = [
+		'user_id', 'first_name', 'last_name', 'sex', 'address',
+		'birth_date', 'description', 'phone_number', 'image',
+	];
+	const fields = [
+		'userId', 'firstName', 'lastName', 'sex', 'address',
+		'birthDate', 'description', 'phoneNumber', 'image',
+	];
+
+	const updates = {};
+	for (let i = 0; i < fields.length; i++) {
+		if (req.body[fields[i]] !== undefined) {
+			updates[allowedFields[i]] = req.body[fields[i]];
+		}
+	}
+	await user.update(updates);
+
+	res.status(200).json(success('Profile updated successfully.', convUser(user) ));
+}
+
+module.exports = { getPrivateProfile, examList, editProfile };
