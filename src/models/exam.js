@@ -129,4 +129,51 @@ const ExamResult = sequelize.define('ExamResult', {
 	timestamps: false,
 });
 
-module.exports = { Exam, SelectedQuestions, ExamResult };
+const ExamAnswers = sequelize.define('ExamAnswers', {
+	service_id: {
+		type: DataTypes.INTEGER,
+		allowNull: false,
+		references: {
+			model: 'Educational_service',
+			key: 'service_id',
+		},
+		onDelete: 'NO ACTION',
+		onUpdate: 'CASCADE',
+		primaryKey: true,
+	},
+	user_id: {
+		type: DataTypes.STRING(30),
+		allowNull: false,
+		references: {
+			model: 'User',
+			key: 'user_id',
+		},
+		onDelete: 'CASCADE',
+		onUpdate: 'CASCADE',
+		primaryKey: true,
+	},
+	question_id: {
+		type: DataTypes.INTEGER,
+		allowNull: false,
+		references: {
+			model: 'Question',
+			key: 'question_id',
+		},
+		onDelete: 'NO ACTION',
+		onUpdate: 'CASCADE',
+		primaryKey: true,
+	},
+	user_answer: {
+		type: DataTypes.SMALLINT,
+		allowNull: true,
+	},
+	right_answer: {
+		type: DataTypes.SMALLINT,
+		allowNull: true,
+	},
+}, {
+	tableName: 'Exam_answers',
+	timestamps: false,
+});
+
+module.exports = { Exam, SelectedQuestions, ExamResult, ExamAnswers };

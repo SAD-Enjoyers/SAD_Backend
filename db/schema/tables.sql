@@ -164,3 +164,15 @@ CREATE TABLE Exam_result(
 	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE NO ACTION ON UPDATE CASCADE,
 	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+CREATE TABLE "Exam_answers" (
+	service_id INTEGER NOT NULL,
+	user_id varchar(30) NOT NULL,
+	question_id INTEGER NOT NULL,
+	user_answer SMALLINT,
+	right_answer SMALLINT,
+	PRIMARY KEY (question_id, service_id, user_id),
+	FOREIGN KEY (question_id) REFERENCES "Question"(question_id) ON DELETE NO ACTION ON UPDATE CASCADE,
+	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE NO ACTION ON UPDATE CASCADE,
+	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
