@@ -146,5 +146,30 @@ function convExamQuestions(question) {
 	return newQuestion;
 }
 
+function convExamCard(exam){
+	if ('1' == exam.s_level)
+		exam.s_level = "Beginner";
+	else if ('2' == exam.s_level)
+		exam.s_level = "Medium";
+	else
+		exam.s_level = "Advanced";
+
+	let newExam = {
+		userId: exam.user_id,
+		serviceId: exam.service_id,
+		name: exam.s_name,
+		description: exam.description,
+		level: exam.s_level,
+		price: exam.price,
+		score: exam.score,
+		numberOfVoters: exam.number_of_voters,
+		image: exam.image,
+		tag1: exam.tag1,
+		tag2: exam.tag2,
+		tag3: exam.tag3,
+	}
+	return newExam;
+}
+
 module.exports = { convUser, convExpert, convCategory, convQuestion, convPreviewExam,
-	convPrivateExam, convExamQuestions };
+	convPrivateExam, convExamCard, convExamQuestions };

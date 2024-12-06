@@ -17,6 +17,18 @@ question.Question.hasMany(exam.SelectedQuestions, {
 	onUpdate: 'CASCADE',
 });
 
+educationalService.Registers.belongsTo(educationalService.EducationalService, {
+	foreignKey: 'service_id',
+	onDelete: 'NO ACTION',
+	onUpdate: 'CASCADE',
+});
+
+educationalService.EducationalService.hasMany(educationalService.Registers, {
+	foreignKey: 'service_id',
+	onDelete: 'NO ACTION',
+	onUpdate: 'CASCADE',
+});
+
 module.exports = {
 	...user,
 	...expert,
