@@ -1,4 +1,4 @@
-const { Exam, EducationalService, ServiceRecordedScores, 
+const { Exam, EducationalService, ServiceRecordedScores, ExamAnswers,
 	Registers, SelectedQuestions, Question, ExamResult } = require('../models');
 const { success, error, convPreviewExam, convPrivateExam, convExamQuestions } = require('../utils');
 const { Op } = require('sequelize');
@@ -423,6 +423,67 @@ async function startExam(req, res) {
 	res.status(200).json(success('Exam started.', result));
 }
 
+async function endExam(req, res) {
+	const { examToken, answers } = req.body;
+
+	if (!examToken)
+		return res.status(400).json(error('Token required.', 400));
+
+	let decoded;
+	try {
+		decoded = jwt.verify(examToken, JWT_SECRET, { ignoreExpiration: true });
+	} catch (err) {
+		return res.status(401).json(error('Invalid or expired token.', 401));
+	}
+
+	const { service_id, user_id, exp } = decoded;
+	if (!service_id || !user_id || !exp)
+		return res.status(400).json(error('Invalid token payload.', 400));
+
+	const result = await ExamResult.findOne({ where: { user_id, service_id } });
+	if (!result || result.participation_times > 1)
+		return res.status(400).json(error('Invalid token payload.', 400));
+
+	// transaction
+	result.participation_times = 2;
+	await result.save();
+
+	const currentTime = Math.floor(Date.now() / 1000);
+	if (currentTime > exp)
+		return res.status(204).json(success('Exam time has expired. Your answers will not be recorded.'));
+
+	const selectedQuestions = await SelectedQuestions.findAll({
+		where: { service_id },
+		include: [
+			{
+				model: Question,
+				attributes: ['question_id', 'right_answer'],
+			},
+		],
+	});
+
+	const questionMap = selectedQuestions.reduce((map, item) => {
+		map[item.question_id] = item.Question.right_answer;
+		return map;
+	}, {});
+
+	const savedAnswers = [];
+	for (const answer of answers) {
+		const { questionId, userAnswer } = answer;
+		if (!questionMap.hasOwnProperty(questionId.toString())) { // Id or _id
+			// return res.status(400).json(error(`Invalid question ID: ${questionId}`, 400));
+			continue;
+		}
+
+		const savedAnswer = await ExamAnswers.create({
+			service_id, user_id, question_id: questionId, user_answer: userAnswer, right_answer: questionMap[questionId.toString()],
+		});
+		savedAnswers.push(savedAnswer);
+	}
+
+	res.status(200).json(success('Exam ended successfully.')); // , savedAnswers.map((answer) => answer.toJSON())
+}
+
 module.exports = { makeExam, editExam, preview, examPage, exams,
 	privateQuestions, addQuestion, deleteQuestion, reorderQuestions,
-	startExam, };
+	startExam, endExam };
