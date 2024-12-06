@@ -2,14 +2,6 @@ const { EducationalService, ServiceRecordedScores, Registers } = require('../mod
 const { success, error } = require('../utils');
 const { Op } = require('sequelize');
 
-async function uploadImage(req, res) {
-	if (!req.file) {
-		return res.status(400).json(error('No file uploaded.', 400));
-	}
-
-	res.status(200).json(success('Image uploaded successfully.', { image: req.file.filename} ));
-}
-
 async function whichPage(req, res) {
 	const edu = await EducationalService.findOne({ where: { service_id: req.query.serviceId, user_id: req.userName } });
 	if (edu)
@@ -27,4 +19,4 @@ async function whichPage(req, res) {
 // ...
 
 
-module.exports = { uploadImage, whichPage };
+module.exports = { whichPage };
