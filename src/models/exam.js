@@ -66,4 +66,67 @@ const SelectedQuestions = sequelize.define('SelectedQuestions', {
 	timestamps: false,
 });
 
-module.exports = { Exam, SelectedQuestions };
+const ExamResult = sequelize.define('ExamResult', {
+	service_id: {
+		type: DataTypes.INTEGER,
+		allowNull: false,
+		references: {
+			model: 'Educational_service',
+			key: 'service_id',
+		},
+		onDelete: 'NO ACTION',
+		onUpdate: 'CASCADE',
+		primaryKey: true,
+	},
+	user_id: {
+		type: DataTypes.STRING(30),
+		allowNull: false,
+		references: {
+			model: 'User',
+			key: 'user_id',
+		},
+		onDelete: 'CASCADE',
+		onUpdate: 'CASCADE',
+		primaryKey: true,
+	},
+	participation_times: {
+		type: DataTypes.SMALLINT,
+		allowNull: false,
+		comment: 'Number of times the user participated in the exam',
+	},
+	start_time: {
+		type: DataTypes.DATE,
+		allowNull: true,
+		comment: 'Start time of the exam',
+	},
+	exam_score: {
+		type: DataTypes.SMALLINT,
+		allowNull: true,
+		comment: 'Score the user achieved in the exam',
+	},
+	passed: {
+		type: DataTypes.CHAR(1),
+		allowNull: true,
+		comment: 'Indicates if the user passed the exam (Y/N)',
+	},
+	right_answers: {
+		type: DataTypes.SMALLINT,
+		allowNull: true,
+		comment: 'Number of correct answers',
+	},
+	wrong_answers: {
+		type: DataTypes.SMALLINT,
+		allowNull: true,
+		comment: 'Number of incorrect answers',
+	},
+	empty_answers: {
+		type: DataTypes.SMALLINT,
+		allowNull: true,
+		comment: 'Number of unanswered questions',
+	},
+}, {
+	tableName: 'Exam_result',
+	timestamps: false,
+});
+
+module.exports = { Exam, SelectedQuestions, ExamResult };

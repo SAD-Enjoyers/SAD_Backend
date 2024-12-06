@@ -148,3 +148,19 @@ CREATE TABLE "Selected_question" (
 	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (question_id) REFERENCES "Question"(question_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+-- User result from exam
+CREATE TABLE Exam_result(
+	service_id INTEGER NOT NULL,
+	user_id varchar(30) NOT NULL,
+	participation_times SMALLINT NOT NULL,
+	start_time timestamp,
+	exam_score SMALLINT,
+	passed char(1),
+	right_answers SMALLINT,
+	wrong_answers SMALLINT,
+	empty_answers SMALLINT,
+	PRIMARY KEY (service_id, user_id),
+	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE NO ACTION ON UPDATE CASCADE,
+	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
