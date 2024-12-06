@@ -1,8 +1,11 @@
 const { Exam, EducationalService, ServiceRecordedScores, 
-	Registers, SelectedQuestions, Question } = require('../models');
-const { success, error, convPreviewExam, convPrivateExam } = require('../utils');
+	Registers, SelectedQuestions, Question, ExamResult } = require('../models');
+const { success, error, convPreviewExam, convPrivateExam, convExamQuestions } = require('../utils');
 const { Op } = require('sequelize');
+const jwt = require('jsonwebtoken');
 const { sequelize, logger } = require('../configs');
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 async function makeExam(req, res) {
 	req.body.serviceType = '1';
@@ -372,5 +375,54 @@ async function exams(req, res) {
 	return res.status(200).json(success("exams", { result }));
 }
 
+async function startExam(req, res) {
+	const { serviceId } = req.params;
+	const exam = await Exam.findOne({ where: { service_id: serviceId } });
+	if(!exam)
+		return res.status(404).json(error('Exam not found.', 404));
+
+	const registered = await Registers.findOne({ where: { user_id: req.userName, service_id: serviceId } });
+	if (!registered)
+		return res.status(403).json(error('You are not a member of this service.', 403));
+
+	const examResult = await ExamResult.findOne({ where: { user_id: req.userName, service_id: serviceId} });
+	if(examResult && examResult.participation_times >= 1)
+		return res.status(403).json(error('You have already taken this test.', 403));
+
+	if(examResult){
+		examResult.participation_times = 1;
+		examResult.save();
+	}
+	else
+		await ExamResult.create({ service_id: serviceId, user_id: req.userName, participation_times: 1 });
+
+	let selectedQuestions = await SelectedQuestions.findAll({
+		where: { service_id: serviceId },
+		include: [
+			{
+				model: Question,
+				attributes: [
+					'question_id', 'question_name', 'question_text', 'o1', 'o2', 'o3', 'o4',
+					'score', 'number_of_voters', 'tag1', 'tag2', 'tag3',
+				],
+			},
+		],
+		order: [['sort_number', 'ASC']],
+	});
+
+	selectedQuestions = selectedQuestions.map((item) => ({
+		sortNumber: item.sort_number,
+		...convExamQuestions(item.Question),
+	}));
+
+	const examToken = jwt.sign({ user_id: req.userName, service_id: serviceId }, JWT_SECRET, { // good to add start time
+		expiresIn: exam.exam_duration * 60,
+	});
+
+	const result = { examDuration: exam.exam_duration, examToken, questions: selectedQuestions };
+	res.status(200).json(success('Exam started.', result));
+}
+
 module.exports = { makeExam, editExam, preview, examPage, exams,
-	privateQuestions, addQuestion, deleteQuestion, reorderQuestions };
+	privateQuestions, addQuestion, deleteQuestion, reorderQuestions,
+	startExam, };
