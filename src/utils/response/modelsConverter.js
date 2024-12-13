@@ -171,5 +171,17 @@ function convExamCard(exam){
 	return newExam;
 }
 
+function convComment(comment) {
+	let newComment = {
+		userId: comment.user_id,
+		serviceId: comment.service_id,
+		commentId: comment.comment_id,
+		parentComment: comment.parent_comment,
+		text: comment.c_text,
+		date: comment.c_date,
+	}
+	return newComment;
+}
+
 module.exports = { convUser, convExpert, convCategory, convQuestion, convPreviewExam,
-	convPrivateExam, convExamCard, convExamQuestions };
+	convPrivateExam, convExamCard, convExamQuestions, convComment };

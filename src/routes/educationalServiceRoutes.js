@@ -1,5 +1,5 @@
 const express = require('express');
-const { whichPage, tempRegister } = require('../controllers/educationalService');
+const { whichPage, tempRegister, comments, addComment } = require('../controllers/educationalService');
 const { authenticateToken, partialAccess, serviceImageUploader } = require('../middleware');
 const { uploadImage } = require('../controllers/commonController');
 
@@ -10,5 +10,7 @@ educationalServiceRoutes.post('/upload-image'
 
 educationalServiceRoutes.get('/which-page/', authenticateToken, whichPage);
 educationalServiceRoutes.post('/register/', authenticateToken, tempRegister);
+educationalServiceRoutes.get('/comments/:serviceId', comments);
+educationalServiceRoutes.post('/add-comment/', authenticateToken, addComment);
 
 module.exports = educationalServiceRoutes;

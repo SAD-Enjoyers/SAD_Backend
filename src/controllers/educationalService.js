@@ -1,5 +1,5 @@
-const { EducationalService, ServiceRecordedScores, Registers } = require('../models');
-const { success, error } = require('../utils');
+const { EducationalService, ServiceRecordedScores, Registers, Comment } = require('../models');
+const { success, error, convComment } = require('../utils');
 const { Op } = require('sequelize');
 
 async function whichPage(req, res) {
@@ -30,9 +30,30 @@ async function tempRegister(req, res) {
 	res.status(201).json(success('Registration was successful.', { serviceId: req.body.serviceId } ));
 }
 
-// comment 
+async function comments(req, res) {
+	const { page = 1 } = req.query;
+	const limit = 15;
+	const offset = (page - 1) * limit;
+
+	const edu = await EducationalService.findOne({ where: { service_id: req.params.serviceId } });
+	if (!edu)
+		return res.status(404).json(error('Service not found.', 404));
+
+	const comments = await Comment.findAll({
+		where: { service_id: req.params.serviceId },
+		order: [['c_date', 'DESC']],
+		limit,
+		offset,
+	});
+	if (!comments.length)
+		return res.status(404).json(error('No comments found.', 404));
+
+	res.status(200).json(success('Comments', comments.map((c) => convComment(c.toJSON()))));
+}
+
+
 // scores
 // ...
 
 
-module.exports = { whichPage, tempRegister };
+module.exports = { whichPage, tempRegister, comments, addComment };
