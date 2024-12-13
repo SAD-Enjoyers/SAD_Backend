@@ -51,6 +51,33 @@ async function comments(req, res) {
 	res.status(200).json(success('Comments', comments.map((c) => convComment(c.toJSON()))));
 }
 
+async function addComment(req, res) {
+	// also we can add limit to number of comments
+	if (!req.body.serviceId || !req.body.text)
+		return res.status(400).json(error('Parameters missing', 400));
+
+	const edu = await EducationalService.findOne({ where: { service_id: req.body.serviceId } });
+	if (!edu)
+		return res.status(404).json(error('Service not found.', 404));
+	
+	const reg = await Registers.findOne({ where: { user_id: req.userName, service_id: req.body.serviceId } });
+	if (!reg && edu.user_id != req.userName)
+		return res.status(403).json(error('Permission denied.', 403));
+
+	if(req.body.parentComment){
+		const parent = await Comment.findOne({ where: { comment_id: req.body.parentComment } });
+		if (!parent)
+			return res.status(404).json(error('Parent comment not found.', 404));
+		if (parent.service_id != req.body.serviceId)
+			return res.status(400).json(error('Parent comment does not belong to this service.', 400));
+	} else 
+		req.body.parentComment = null;
+
+	const comment = await Comment.create({ service_id: req.body.serviceId, user_id: req.userName, 
+		parent_comment: req.body.parentComment, c_text: req.body.text, c_date: new Date() });
+
+	res.status(200).json(success('Comment added successfully.', convComment(comment)));
+}
 
 // scores
 // ...
