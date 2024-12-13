@@ -147,4 +147,62 @@ const Registers = sequelize.define('Registers', {
 	timestamps: false,
 });
 
-module.exports = { EducationalService, ServiceRecordedScores, Registers };
+const Comment = sequelize.define('Comment', {
+	comment_id: {
+		type: DataTypes.BIGINT,
+		autoIncrement: true,
+		primaryKey: true,
+		unique: true,
+		field: 'comment_id',
+	},
+	parent_comment: {
+		type: DataTypes.BIGINT,
+		allowNull: true,
+		field: 'parent_comment',
+		references: {
+			model: 'Comment',
+			key: 'comment_id',
+		},
+		onDelete: 'CASCADE',
+		onUpdate: 'CASCADE',
+	},
+	service_id: {
+		type: DataTypes.INTEGER,
+		allowNull: false,
+		field: 'service_id',
+		references: {
+			model: 'Educational_service',
+			key: 'service_id',
+		},
+		onDelete: 'NO ACTION',
+		onUpdate: 'CASCADE',
+	},
+	user_id: {
+		type: DataTypes.STRING(30),
+		allowNull: false,
+		field: 'user_id',
+		references: {
+			model: 'User',
+			key: 'user_id',
+		},
+		onDelete: 'CASCADE',
+		onUpdate: 'CASCADE',
+	},
+	c_text: {
+		type: DataTypes.TEXT,
+		allowNull: false,
+		field: 'c_text',
+		comment: 'Text of the comment',
+	},
+	c_date: {
+		type: DataTypes.DATE,
+		allowNull: false,
+		field: 'c_date',
+		comment: 'Date the comment was created',
+	},
+}, {
+	tableName: 'Comment',
+	timestamps: false,
+});
+
+module.exports = { EducationalService, ServiceRecordedScores, Registers, Comment };

@@ -96,6 +96,20 @@ CREATE TABLE "Registers" (
 	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE NO ACTION ON UPDATE CASCADE
 );
 
+-- Services comments
+CREATE TABLE "Comment" (
+	comment_id BIGSERIAL UNIQUE,
+	parent_comment BIGINT,
+	service_id INTEGER NOT NULL,
+	user_id varchar(30) NOT NULL,
+	c_text TEXT NOT NULL,
+	c_date TIMESTAMP NOT NULL,
+	PRIMARY KEY (comment_id, service_id, user_id),
+	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE NO ACTION ON UPDATE CASCADE,
+	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+	FOREIGN KEY (parent_comment) REFERENCES "Comment"(comment_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 -------------------------------------- Exam --------------------------------------
 
 -- Exam Information
