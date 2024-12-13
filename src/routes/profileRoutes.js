@@ -1,5 +1,5 @@
 const express = require('express');
-const { getPrivateProfile, examList, editProfile } = require('../controllers/privateProfile');
+const { getPrivateProfile, examList, editProfile } = require('../controllers/profile');
 const { uploadImage } = require('../controllers/commonController');
 const { authenticateToken, partialAccess, profileImageUploader } = require('../middleware');
 
