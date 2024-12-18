@@ -90,7 +90,7 @@ function convPreviewExam (exam) {
 	return newExam;
 }
 
-function convPrivateExam (exam) {
+function convExam (exam) {
 	if ('A' == exam.activity_status)
 		exam.activity_status = "Active";
 	else if ('P' == exam.activity_status)
@@ -184,4 +184,4 @@ function convComment(comment) {
 }
 
 module.exports = { convUser, convExpert, convCategory, convQuestion, convPreviewExam,
-	convPrivateExam, convExamCard, convExamQuestions, convComment };
+	convExam, convExamCard, convExamQuestions, convComment };
