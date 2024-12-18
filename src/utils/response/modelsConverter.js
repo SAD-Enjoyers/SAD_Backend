@@ -194,5 +194,29 @@ function convExamResult(result) {
 	}
 	return newResult;
 }
+
+function convParticipants(participants) {
+	const newParticipants = participants.map((participant) => {
+		console.log(participant);
+		const examResult = participant?.ExamResults[0] || null;
+		return {
+			userId: participant.user_id,
+			firstName: participant.first_name,
+			lastName: participant.last_name,
+			image: participant.image,
+			examResult: examResult ? {
+				examScore: examResult.exam_score,
+				passed: examResult.passed,
+				rightAnswers: examResult.right_answers,
+				wrongAnswers: examResult.wrong_answers,
+				emptyAnswers: examResult.empty_answers,
+			} : null,
+			hasResult: !!examResult, // Flag indicating if the result exists
+		};
+	});
+	return newParticipants;
+}
+
+
 module.exports = { convUser, convExpert, convCategory, convQuestion, convPreviewExam,
-	convExam, convExamCard, convExamQuestions, convComment, convExamResult };
+	convExam, convExamCard, convExamQuestions, convComment, convExamResult, convParticipants };
