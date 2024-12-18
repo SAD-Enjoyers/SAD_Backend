@@ -1,6 +1,7 @@
-const { Exam, EducationalService, Registers, SelectedQuestions, } = require('../../models');
-const { success, error, convExam, } = require('../../utils');
+const { Exam, EducationalService, Registers, SelectedQuestions, User, ExamResult } = require('../../models');
+const { success, error, convExam, convParticipants } = require('../../utils');
 const { sequelize, logger } = require('../../configs');
+const { Op } = require('sequelize');
 
 
 async function makeExam(req, res) {
@@ -94,5 +95,34 @@ async function editExam (req, res) {
 	}
 }
 
+async function Participants(req, res) {
+	const edu = await EducationalService.findOne({ where: { service_id: req.params.serviceId, user_id: req.userName } });
+	if (!edu)
+		res.status(404).json(error("Service not found.", 404));
 
-module.exports = { makeExam, editExam, };
+	const participants = await Registers.findAll({ where: { service_id: req.params.serviceId }, });
+
+	if (!participants || participants.length === 0)
+		return res.status(404).json(error('No participants found for this exam.', 404));
+
+	let userList = [];
+	for (let person of participants){
+		userList.push(await User.findOne({
+			where: { user_id: person.user_id },
+			attributes: ['user_id', 'first_name', 'image'],
+			include: [
+				{
+					model: ExamResult,
+					where: { service_id: req.params.serviceId, user_id: person.user_id, participation_times: 3 },
+					required: false, // Allows users without results to be included
+					attributes: ['exam_score', 'passed', 'right_answers', 'wrong_answers', 'empty_answers'],
+				},
+			],
+		}));
+	}
+
+	res.status(200).json(success("Participants", convParticipants(userList)));
+}
+
+
+module.exports = { makeExam, editExam, Participants };
