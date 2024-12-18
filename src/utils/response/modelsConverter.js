@@ -183,5 +183,16 @@ function convComment(comment) {
 	return newComment;
 }
 
+function convExamResult(result) {
+	const passed = result.passed == 'P' ? "Passed" : "Rejected";
+	let newResult = {
+		examScore: result.exam_score,
+		rightAnswers: result.right_answers,
+		wrongAnswers: result.wrong_answers,
+		emptyAnswers: result.empty_answers,
+		passed,
+	}
+	return newResult;
+}
 module.exports = { convUser, convExpert, convCategory, convQuestion, convPreviewExam,
-	convExam, convExamCard, convExamQuestions, convComment };
+	convExam, convExamCard, convExamQuestions, convComment, convExamResult };
