@@ -1,5 +1,5 @@
 const { Exam, EducationalService, Registers, SelectedQuestions, } = require('../../models');
-const { success, error, convPrivateExam, } = require('../../utils');
+const { success, error, convExam, } = require('../../utils');
 const { sequelize, logger } = require('../../configs');
 
 
@@ -94,17 +94,5 @@ async function editExam (req, res) {
 	}
 }
 
-async function privateExam(req, res, service, serviceId) {
-	const exam = await Exam.findOne({ where: { service_id: serviceId } });
-	if (!exam)
-		return res.status(400).json(error('Exam information is corrupted.', 400));
-	const userCount = await Registers.count({ where: { service_id: serviceId } });
-	const questionCount = await SelectedQuestions.count({ where: { service_id: serviceId } });
 
-	service = convPrivateExam({ ...service.dataValues, ...exam.dataValues, userCount, questionCount });
-
-	return res.status(200).json(success('private', service));
-}
-
-
-module.exports = { makeExam, editExam, privateExam, };
+module.exports = { makeExam, editExam, };

@@ -164,7 +164,7 @@ CREATE TABLE "Selected_question" (
 );
 
 -- User result from exam
-CREATE TABLE Exam_result(
+CREATE TABLE "Exam_result"(
 	service_id INTEGER NOT NULL,
 	user_id varchar(30) NOT NULL,
 	participation_times SMALLINT NOT NULL,

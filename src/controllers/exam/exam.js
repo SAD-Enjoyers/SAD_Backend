@@ -1,9 +1,7 @@
 const { Exam, EducationalService, ExamAnswers, Registers, SelectedQuestions, } = require('../../models');
-const { success, error, convPreviewExam, } = require('../../utils');
+const { success, error, convPreviewExam, convExam } = require('../../utils');
 const { Op } = require('sequelize');
 const { sequelize, logger } = require('../../configs');
-const { privateExam } = require('./privateExamPage');
-const { publicExam } = require('./publicExamPage');
 
 
 async function preview(req, res) {
@@ -34,10 +32,17 @@ async function examPage(req, res) {
 	let service = await EducationalService.findOne({ where: { service_id: serviceId } });
 	let users = await Registers.findOne({ where: { service_id: serviceId, user_id: req.userName } });
 	if (service.service_type == '1'){
-		if (req.userName == service.user_id)
-			privateExam(req, res, service, serviceId);
-		else if (users)
-			publicExam(req, res, service, serviceId);
+
+		if (req.userName == service.user_id || users){
+			const exam = await Exam.findOne({ where: { service_id: serviceId } });
+			if (!exam)
+				return res.status(400).json(error('Exam information is corrupted.', 400));
+			const userCount = await Registers.count({ where: { service_id: serviceId } });
+			const questionCount = await SelectedQuestions.count({ where: { service_id: serviceId } });
+			service = convExam({ ...service.dataValues, ...exam.dataValues, userCount, questionCount });
+
+			return res.status(200).json(success('Exam information', service));
+		}
 		else
 			return res.status(403).json(error('Permission denied.', 403));
 	} else
