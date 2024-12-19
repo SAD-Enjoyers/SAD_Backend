@@ -279,8 +279,21 @@ function convArticleCard(article){
 	return newArticle;
 }
 
+function convTransaction(transaction) {
+	let type = null;
+	if (transaction.t_type == '1')
+		type = 'Deposit';
+	if (transaction.t_type == '2')
+		type = 'Withdraw';
+	if (transaction.t_type == '3')
+		type = 'Buy service';
+	if (transaction.t_type == '4')
+		type = 'Sold service';
+
+	return { time: transaction.t_time, type: type, volume: transaction.t_volume };
+}
 
 module.exports = { convUser, convExpert, convCategory, convQuestion, convPreviewExam,
 	convExam, convExamCard, convExamQuestions, convComment, 
 	convExamResult, convParticipants, convArticle, convBlog,
-	convArticleCard, };
+	convArticleCard, convTransaction };
