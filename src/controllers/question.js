@@ -15,7 +15,7 @@ async function scoreSubmission(req, res) {
 	let question_id = req.body.questionId;
 	let user_id = req.userName;
 	let question = await Question.findOne({ where: { question_id } });
-	if(question.user_id == req.body.userName){
+	if(question.user_id == req.userName){
 		return res.status(403).json(error("The user cannot vote on his question.", 403));
 	}
 	let scored = await RecordedScores.findOne({ where: { question_id, user_id } });

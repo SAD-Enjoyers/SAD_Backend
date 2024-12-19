@@ -79,8 +79,35 @@ async function addComment(req, res) {
 	res.status(200).json(success('Comment added successfully.', convComment(comment)));
 }
 
-// scores
-// ...
+async function scoreSubmission(req, res) {
+	let service_id = req.body.serviceId;
+	let user_id = req.userName;
+	let service = await EducationalService.findOne({ where: { service_id } });
+	if (!service)
+		return res.status(404).json(error("Service not found.", 404));
+	if(service.user_id == req.userName){
+		return res.status(403).json(error("The user cannot vote on his question.", 403));
+	}
+	const reg = await Registers.findOne({ where: { service_id, user_id } });
+	if (!reg)
+		return res.status(403).json(error("Permission denied.", 403));
 
+	let scored = await ServiceRecordedScores.findOne({ where: { service_id, user_id } });
+	if(scored)
+		return res.status(403).json(error("You have already rated.", 403));
 
-module.exports = { whichPage, tempRegister, comments, addComment };
+	let score = req.body.scored;
+	if(service.number_of_voters){
+		service.score = ((service.score * service.number_of_voters) + score) / (service.number_of_voters + 1);
+		service.number_of_voters = service.number_of_voters + 1;
+	} else {
+		service.number_of_voters = 1;
+		service.score = score;
+	}
+	scored = await ServiceRecordedScores.create({ service_id, user_id, score }); // transaction
+	service.save();
+	res.status(200).json(success("The score was recorded.", 
+		{ score: service.score, numberOfVoters: service.number_of_voters }));
+}
+
+module.exports = { whichPage, tempRegister, comments, addComment, scoreSubmission };

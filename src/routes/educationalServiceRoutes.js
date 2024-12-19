@@ -1,16 +1,19 @@
 const express = require('express');
-const { whichPage, tempRegister, comments, addComment } = require('../controllers/educationalService');
-const { authenticateToken, partialAccess, serviceImageUploader } = require('../middleware');
-const { uploadImage } = require('../controllers/commonController');
+const { whichPage, tempRegister, comments, addComment, scoreSubmission } = require('../controllers/educationalService');
+const { authenticateToken, partialAccess, serviceImageUploader, articleAttachmentUploader } = require('../middleware');
+const { uploadFile } = require('../controllers/commonController');
 
 const educationalServiceRoutes = express.Router();
 
 educationalServiceRoutes.post('/upload-image'
-	, authenticateToken, serviceImageUploader, uploadImage);
+	, authenticateToken, serviceImageUploader, uploadFile);
+educationalServiceRoutes.post('/upload-attachment'
+	, authenticateToken,articleAttachmentUploader, uploadFile);
 
 educationalServiceRoutes.get('/which-page/', authenticateToken, whichPage);
 educationalServiceRoutes.post('/register/', authenticateToken, tempRegister);
 educationalServiceRoutes.get('/comments/:serviceId', comments);
 educationalServiceRoutes.post('/add-comment/', authenticateToken, addComment);
+educationalServiceRoutes.post('/score-submission', authenticateToken, scoreSubmission);
 
 module.exports = educationalServiceRoutes;
