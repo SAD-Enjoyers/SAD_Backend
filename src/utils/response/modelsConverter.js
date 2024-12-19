@@ -216,6 +216,40 @@ function convParticipants(participants) {
 	return newParticipants;
 }
 
+function convArticle (article) {
+	if ('A' == article.activity_status)
+		article.activity_status = "Active";
+	else if ('P' == article.activity_status)
+		article.activity_status = "Passive";
+	else
+		article.activity_status = "Suspended";
+
+	if ('1' == article.s_level)
+		article.s_level = "Beginner";
+	else if ('2' == article.s_level)
+		article.s_level = "Medium";
+	else
+		article.s_level = "Advanced";
+
+	let newArticle = {
+		userId: article.user_id,
+		serviceId: article.service_id,
+		name: article.s_name,
+		description: article.description,
+		level: article.s_level,
+		price: article.price,
+		activityStatus: article.activity_status,
+		score: article.score,
+		numberOfVoters: article.number_of_voters,
+		image: article.image,
+		tag1: article.tag1,
+		tag2: article.tag2,
+		tag3: article.tag3,
+		numberOfMembers: article.userCount,
+	}
+	return newArticle;
+}
 
 module.exports = { convUser, convExpert, convCategory, convQuestion, convPreviewExam,
-	convExam, convExamCard, convExamQuestions, convComment, convExamResult, convParticipants };
+	convExam, convExamCard, convExamQuestions, convComment, 
+	convExamResult, convParticipants, convArticle, };
