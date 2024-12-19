@@ -6,7 +6,7 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
 });
 
 const Article = sequelize.define('Article', {
-	serviceId: {
+	service_id: {
 		type: DataTypes.INTEGER,
 		allowNull: false,
 		unique: true,

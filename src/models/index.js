@@ -4,7 +4,7 @@ const educationalService = require('./educationalService');
 const category = require('./category');
 const question = require('./question');
 const exam = require('./exam');
-const article = require('./Article');
+const article = require('./article');
 
 // -----------------------------------------------------------------
 // @ Question <-> Exam
