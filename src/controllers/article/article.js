@@ -1,6 +1,7 @@
 const { Article, EducationalService, Registers, } = require('../../models');
-const { success, error, convArticle, convBlog } = require('../../utils');
+const { success, error, convArticle, convBlog, convArticleCard } = require('../../utils');
 const { sequelize, logger } = require('../../configs');
+const { Op } = require('sequelize');
 
 async function preview(req, res) {
 	let service = await EducationalService.findOne({ where: { service_id: req.params.serviceId } });
@@ -32,5 +33,82 @@ async function articlePage(req, res) {
 		return res.status(403).json(error('Permission denied.', 403));
 }
 
+async function articles(req, res) {
+	const { search, tags, sort, level } = req.query;
 
-module.exports = { articlePage, preview };
+	let s_level = '1';
+	if(level){
+		if (level == 'Beginner') s_level = '1';
+		else if (level == 'Medium') s_level = '2';
+		else if (level == 'Advanced') s_level = '3';
+		else return res.status(400).json(error('Level is not valid.', 400 ));
+	} else 
+		s_level = [ '1', '2', '3' ];
+
+	let filters = {};
+	if(req.partialAccess){
+		filters = {
+			[Op.or]: [
+				{ activity_status: 'A' },
+			], [Op.and]: [
+				{ service_type: '2', s_level: s_level },
+			],
+		};
+	} else {
+		filters = {
+			[Op.or]: [
+				{ activity_status: 'A' },
+				{ user_id: req.userName },
+			], [Op.and]: [
+				{ service_type: '2', s_level: s_level },
+			],
+		};
+	}
+
+	if (search) {
+		filters.s_name = {
+			[Op.iLike]: `%${search}%`,
+		};
+	}
+
+	if (tags) {
+		const tagList = tags.split(',');
+		filters[Op.and] = [
+			...filters[Op.and] || [],
+			{
+				[Op.or]: tagList.map(tag => ({
+					[Op.or]: [
+						{ tag1: tag },
+						{ tag2: tag },
+						{ tag3: tag },
+					],
+				})),
+			},
+		];
+	}
+
+	const order = [];
+	if (sort) {
+		let sTemp = sort.split('-');
+		if (sTemp[0] == "score"){
+			order.push(sTemp);
+		} else {
+			order.push(["s_name", sTemp[1]]);
+		}
+	}
+
+	const articles = await EducationalService.findAll({
+		where: filters,
+		order,
+	});
+
+
+	let result = [];
+	for (let e of articles){
+		result.push(convArticleCard(e.dataValues));
+	}
+
+	return res.status(200).json(success("articles", { result }));
+}
+
+module.exports = { articlePage, preview, articles };
