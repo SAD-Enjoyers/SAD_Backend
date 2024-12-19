@@ -59,12 +59,16 @@ CREATE TABLE "Category" (
 -- All Educational Service Information
 CREATE TABLE "Educational_service" (
 	user_id varchar(30) NOT NULL,
-	service_id serial UNIQUE,
+	service_id serial UNIQUE,const { Exam, EducationalService, ExamAnswers, Registers, SelectedQuestions, } = require('../../models');
+const { success, error, convPreviewExam, convExam } = require('../../utils');
+const { Op } = require('sequelize');
+const { sequelize, logger } = require('../../configs');
+
 	s_name varchar(150) NOT NULL,
 	description text,
-	s_level char(1) NOT NULL, 					-- 1:Beginner, 2:Medium, 3:Advanced
+	s_level char(1) NOT NULL, 					-- 1: Beginner, 2: Medium, 3: Advanced
 	price numeric(6, 2) DEFAULT 0.0,
-	service_type char(1) NOT NULL, 				-- 1:Exam, 2:Article, 3: Video
+	service_type char(1) NOT NULL, 				-- 1: Exam, 2: Article, 3: Video
 	activity_status char(1) DEFAULT 'P',		-- A: Active, S: suspended, P: passive
 	score NUMERIC(3, 2) NOT NULL DEFAULT 0.00,
 	number_of_voters smallint NOT NULL DEFAULT 0, 
@@ -189,4 +193,15 @@ CREATE TABLE "Exam_answers" (
 	FOREIGN KEY (question_id) REFERENCES "Question"(question_id) ON DELETE NO ACTION ON UPDATE CASCADE,
 	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE NO ACTION ON UPDATE CASCADE,
 	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-------------------------------------- Article --------------------------------------
+
+CREATE TABLE "Article" (
+	service_id integer UNIQUE,
+	title varchar(255) NOT NULL,
+	a_text text NOT NULL,
+	attachment varchar(255),
+	PRIMARY KEY (service_id),
+	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE CASCADE ON UPDATE CASCADE
 );

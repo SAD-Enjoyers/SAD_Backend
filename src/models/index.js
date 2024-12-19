@@ -4,6 +4,7 @@ const educationalService = require('./educationalService');
 const category = require('./category');
 const question = require('./question');
 const exam = require('./exam');
+const article = require('./Article');
 
 // -----------------------------------------------------------------
 // @ Question <-> Exam
@@ -69,4 +70,5 @@ module.exports = {
 	...category,
 	...question,
 	...exam,
+	...article,
 };
