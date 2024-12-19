@@ -250,6 +250,36 @@ function convArticle (article) {
 	return newArticle;
 }
 
+function convBlog(blog) {
+	return { title: blog.title, text: blog.a_text, attachment: blog.attachment };
+}
+
+function convArticleCard(article){
+	if ('1' == article.s_level)
+		article.s_level = "Beginner";
+	else if ('2' == article.s_level)
+		article.s_level = "Medium";
+	else
+		article.s_level = "Advanced";
+
+	let newArticle = {
+		userId: article.user_id,
+		serviceId: article.service_id,
+		name: article.s_name,
+		description: article.description,
+		level: article.s_level,
+		price: article.price,
+		score: article.score,
+		numberOfVoters: article.number_of_voters,
+		image: article.image,
+		tag1: article.tag1,
+		tag2: article.tag2,
+		tag3: article.tag3,
+	}
+	return newArticle;
+}
+
 module.exports = { convUser, convExpert, convCategory, convQuestion, convPreviewExam,
 	convExam, convExamCard, convExamQuestions, convComment, 
-	convExamResult, convParticipants, convArticle, };
+	convExamResult, convParticipants, convArticle, convBlog,
+	convArticleCard, };
