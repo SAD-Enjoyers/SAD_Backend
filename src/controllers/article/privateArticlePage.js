@@ -29,6 +29,40 @@ async function makeArticle(req, res) {
 	res.status(201).json(success('Article created successfully.', { serviceId: newService.service_id }));
 }
 
+async function editArticleInformation (req, res) {
+	if (req.body.activityStatus){
+		if (req.body.activityStatus == 'Passive')
+			req.body.activityStatus = 'P';
+		else if (req.body.activityStatus == 'Active')
+			req.body.activityStatus = 'A';
+		else 
+			return res.status(403).json(error('Permission denied.', 403));
+	}
+
+	if(req.body.level){
+		if (req.body.level == 'Beginner') req.body.level = '1';
+		else if (req.body.level == 'Medium') req.body.level = '2';
+		else if (req.body.level == 'Advanced') req.body.level = '3';
+		else return res.status(400).json(error('Level is not valid.', 400 ));
+	}
+
+	if (!req.body.serviceId)
+		return res.status(400).json(error('Misssing serviceId.', 400));
+
+	let service = await EducationalService.findOne( 
+		{ where: { service_id: req.body.serviceId, user_id: req.userName } });
+	if(!service)
+		return res.status(404).json(error('Article not found.', 404));
+
+	await service.update({
+		s_name: req.body.name, description: req.body.description, s_level: req.body.level, 
+		price: req.body.price, activity_status: req.body.activityStatus, 
+		image: req.body.image, tag1: req.body.tag1, tag2: req.body.tag2, tag3: req.body.tag3
+	})
+
+	res.status(201).json(success('Article edited successfully.', { serviceId: service.service_id })); 
+}
+
 async function editArticle(req, res) {
 	if (!req.body.title || !req.body.text)
 		return res.status(400).json(error("Required parameter missing.", 400));
@@ -50,4 +84,4 @@ async function editArticle(req, res) {
 }
 
 
-module.exports = { makeArticle, editArticle, };
+module.exports = { makeArticle, editArticle, editArticleInformation };
