@@ -25,6 +25,16 @@ CREATE TABLE IF NOT EXISTS "User" (
 );
 -- its good to have Exp time for token
 
+-- Transactions
+CREATE TABLE IF NOT EXISTS "Transaction" (
+	user_id varchar(30) NOT NULL,
+	t_time timestamp NOT NULL,
+	t_type char(1) NOT NULL, -- 1: deposit, 2: withdraw, 3: buy service, 4: sold service
+	t_volume numeric(12, 2) NOT NULL,
+	PRIMARY KEY (user_id, t_time),
+	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE NO ACTION ON UPDATE CASCADE
+);
+
 -- Backup User Information (also use for statistics)
 CREATE TABLE IF NOT EXISTS "Backup_user" (
 	user_id varchar(30) NOT NULL,

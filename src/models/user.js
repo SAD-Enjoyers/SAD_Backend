@@ -106,5 +106,37 @@ const BackupUser = sequelize.define('BackupUser', {
 	timestamps: false,
 });
 
+const Transaction = sequelize.define('Transaction', {
+	user_id: {
+		type: DataTypes.STRING(30),
+		allowNull: false,
+		primaryKey: true,
+		references: {
+			model: 'User',
+			key: 'user_id',
+		},
+		onDelete: 'NO ACTION',
+		onUpdate: 'CASCADE',
+	},
+	t_time: {
+		type: DataTypes.DATE,
+		primaryKey: true,
+		allowNull: false,
+		// field: 't_time',
+	},
+	t_type: {
+		type: DataTypes.CHAR(1),
+		allowNull: false,
+		comment: '1: deposit, 2: withdraw, 3: buy service, 4: sold service',
+	},
+	t_volume: {
+		type: DataTypes.DECIMAL(12, 2),
+		allowNull: false,
+	},
+}, {
+	tableName: 'Transaction',
+	timestamps: false,
+});
 
-module.exports = { User, BackupUser };
+
+module.exports = { User, BackupUser, Transaction };
