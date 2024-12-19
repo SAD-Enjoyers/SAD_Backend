@@ -7,12 +7,12 @@ async function categories(req, res) {
 	res.status(200).json(success("categoryList", { categoryList }));
 }
 
-async function uploadImage(req, res) {
+async function uploadFile(req, res) {
 	if (!req.file) {
 		return res.status(400).json(error('No file uploaded.', 400));
 	}
 
-	res.status(200).json(success('Image uploaded successfully.', { image: req.file.filename} ));
+	res.status(200).json(success('Uploaded successfully.', { file: req.file.filename} ));
 }
 
-module.exports = { categories, uploadImage };
+module.exports = { categories, uploadFile };

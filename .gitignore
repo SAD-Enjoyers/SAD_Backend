@@ -8,3 +8,6 @@ package-lock.json
 /src/uploads/*/*.jpeg
 /src/uploads/*/*.png
 /src/uploads/*/*.webp
+/src/uploads/*/*.pdf
+/src/uploads/*/*.docx
+/src/uploads/*/*.zip
