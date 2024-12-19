@@ -1,4 +1,4 @@
-const { EducationalService, ServiceRecordedScores, Registers, Comment } = require('../models');
+const { EducationalService, ServiceRecordedScores, Registers, Comment, Transaction, User } = require('../models');
 const { success, error, convComment } = require('../utils');
 const { Op } = require('sequelize');
 
@@ -14,18 +14,34 @@ async function whichPage(req, res) {
 	res.status(200).json(success("preview", { flag: 3 }));
 }
 
-async function tempRegister(req, res) {
+async function registerService(req, res) {
 	const edu = await EducationalService.findOne({ where: { service_id: req.body.serviceId } });
 	if (!edu)
 		return res.status(404).json(error('Service not found', 404));
-	if (edu.user_id == req.userName)
+	else if (edu.user_id == req.userName)
 		return res.status(400).json(error('You are the creator of this service.', 400));
+	else if (edu.activity_status != 'A')
+		return res.status(403).json(error('You cant register in this service.', 403));
 
 	const repeat = await Registers.findOne({ where: { user_id: req.userName, service_id: req.body.serviceId } });
 	if (repeat)
 		return res.status(400).json(error('You already register in this service.', 400));
 
+	const student = await User.findOne({ where: { user_id: req.userName } });
+	if (!student || !student.balance || student.balance < edu.price)
+		return res.status(403).json(error('You do not have enough balance for this.', 403));
+
+	const owner = await User.findOne({ where: { user_id: edu.user_id } });
+	if (!owner.balance)
+		owner.balance = 0;
+	owner.balance = parseFloat(owner.balance) + edu.price;
+	student.balance = parseFloat(student.balance) - edu.price;
+	const buy = await Transaction.create({ user_id: req.userName, t_time: new Date(), t_type: '3', t_volume: edu.price });
+	const sell = await Transaction.create({ user_id: edu.user_id, t_time: new Date(), t_type: '4', t_volume: edu.price });
 	const reg = await Registers.create({ user_id: req.userName, service_id: req.body.serviceId });
+	await student.save();
+	await owner.save();
+	// transaction
 
 	res.status(201).json(success('Registration was successful.', { serviceId: req.body.serviceId } ));
 }
@@ -110,4 +126,4 @@ async function scoreSubmission(req, res) {
 		{ score: service.score, numberOfVoters: service.number_of_voters }));
 }
 
-module.exports = { whichPage, tempRegister, comments, addComment, scoreSubmission };
+module.exports = { whichPage, registerService, comments, addComment, scoreSubmission };

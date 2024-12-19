@@ -25,7 +25,7 @@ async function transactions(req, res) {
 	if(!user)
 		return res.status(404).json(error("User not found.", 404));
 
-	let transaction = await Transaction.findAll({ where: { user_id: req.userName } });
+	let transaction = await Transaction.findAll({ where: { user_id: req.userName }, order: [['t_time', 'DESC']] });
 	transaction = transaction.map((trans) => convTransaction(trans));
 	res.status(200).json(success("transactions", transaction));
 }
