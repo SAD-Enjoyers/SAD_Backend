@@ -40,6 +40,9 @@ async function scoreSubmission(req, res) {
 async function getQuestion(req, res) {
 	let question_id = req.query.questionId;
 	let question = await Question.findOne({ where: { question_id } });
+	if (!question)
+		return res.status(404).json(error("Question not found."));
+	
 	if(req.partialAccess){
 		if(!question.visibility){
 			return res.status(403).json(error("You do not have access to this question.", 403));
