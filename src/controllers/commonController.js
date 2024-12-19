@@ -12,7 +12,7 @@ async function uploadFile(req, res) {
 		return res.status(400).json(error('No file uploaded.', 400));
 	}
 
-	res.status(200).json(success('Uploaded successfully.', { file: req.file.filename} ));
+	res.status(200).json(success('Uploaded successfully.', { fileName: req.file.filename} ));
 }
 
 module.exports = { categories, uploadFile };
