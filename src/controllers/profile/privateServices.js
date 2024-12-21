@@ -15,7 +15,7 @@ async function examList(req, res) {
 	});
 	registeredExams = registeredExams.map((register) => ({ type: "member", ...convExamCard(register.EducationalService) }));
 
-	let createdExams = await EducationalService.findAll({ where: { user_id: req.userName } });
+	let createdExams = await EducationalService.findAll({ where: { user_id: req.userName, service_type: '1' } });
 	createdExams = createdExams.map((exam) => ({ type: "creator", ...convExamCard(exam.dataValues) }) );
 
 	res.status(200).json(success('Exam cards', createdExams.concat(registeredExams)));
@@ -35,7 +35,7 @@ async function articleList(req, res) {
 	});
 	registeredArticls = registeredArticls.map((register) => ({ type: "member", ...convArticleCard(register.EducationalService) }));
 
-	let createdArticle = await EducationalService.findAll({ where: { user_id: req.userName } });
+	let createdArticle = await EducationalService.findAll({ where: { user_id: req.userName, service_type: '2' } });
 	createdArticle = createdArticle.map((article) => ({ type: "creator", ...convArticleCard(article.dataValues) }) );
 
 	res.status(200).json(success('Article cards', createdArticle.concat(registeredArticls)));
