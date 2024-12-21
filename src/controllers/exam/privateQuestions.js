@@ -1,7 +1,7 @@
 const { EducationalService, SelectedQuestions, Question, } = require('../../models');
 const { success, error, convExamQuestions } = require('../../utils');
 const { sequelize, logger } = require('../../configs');
-
+const { Op } = require('sequelize');
 
 async function privateQuestions(req, res) {
 	const { serviceId } = req.params;
@@ -81,7 +81,7 @@ async function deleteQuestion(req, res) {
 		}, { transaction });
 
 		if (!deleted){
-			await transaction.commit();
+			await transaction.rollback();
 			return res.status(404).json(error('Question not found in the selected list.', 404));
 		}
 
