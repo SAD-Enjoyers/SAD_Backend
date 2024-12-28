@@ -19,7 +19,7 @@ async function preview(req, res) {
 	let privatePage = false;
 	if (req.userName){
 		const registered = await Registers.findOne({ where: { service_id: req.query.serviceId, user_id: req.userName } });
-		if (req.userName == service.user_id || registered)
+		if (req.userName == service.userId || registered)
 			privatePage = true;
 	}
 
