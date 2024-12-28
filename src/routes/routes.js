@@ -6,6 +6,7 @@ const commonRoutes = require('./commonRoutes');
 const examRoutes = require('./examRoutes');
 const educationalServiceRoutes = require('./educationalServiceRoutes');
 const articleRoutes = require('./articleRoutes');
+const courseRoutes = require('./courseRoutes');
 
 const router = express.Router();
 
@@ -16,5 +17,6 @@ router.use('/common/', commonRoutes);
 router.use('/educational-service/', educationalServiceRoutes);
 router.use('/exam/', examRoutes);
 router.use('/article/', articleRoutes);
+router.use('/course/', courseRoutes);
 
 module.exports = router;
