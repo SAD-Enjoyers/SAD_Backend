@@ -11,3 +11,5 @@ package-lock.json
 /src/uploads/*/*.pdf
 /src/uploads/*/*.docx
 /src/uploads/*/*.zip
+/src/uploads/*/*.mp4
+/src/uploads/*/*.mkv
