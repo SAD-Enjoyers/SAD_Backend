@@ -5,6 +5,7 @@ const category = require('./category');
 const question = require('./question');
 const exam = require('./exam');
 const article = require('./article');
+const video = require('./course');
 
 // -----------------------------------------------------------------
 // @ Question <-> Exam
@@ -71,4 +72,5 @@ module.exports = {
 	...question,
 	...exam,
 	...article,
+	...video,
 };

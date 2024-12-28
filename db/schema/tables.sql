@@ -211,3 +211,17 @@ CREATE TABLE "Article" (
 	PRIMARY KEY (service_id),
 	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+-------------------------------------- Course --------------------------------------
+
+CREATE TABLE "Video" (
+	service_id integer,
+	video_id serial UNIQUE,
+	title varchar(255) NOT NULL,
+	v_description text,
+	sort_number SMALLINT NOT NULL,
+	address varchar(255) NOT NULL,
+	v_time time,
+	PRIMARY KEY(video_id),
+	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
