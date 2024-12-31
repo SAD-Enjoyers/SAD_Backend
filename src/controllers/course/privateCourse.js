@@ -51,10 +51,24 @@ async function addVideo(req, res) {
 }
 
 async function editVideo(req, res) {
-	// body...
+	if (!req.body.title)
+		return res.status(404).json(error('Missing arguments.', 404));
+
+	const edu = await EducationalService.findOne({ where: { service_id: req.body.serviceId, 
+		user_id: req.userName, service_type: "3" } });
+	if (!edu)
+		return res.status(403).json(error('Permission denied.', 403));
+
+	let video = await Video.findOne({ where: { service_id: req.body.serviceId, video_id: req.body.videoId } });
+	if (!video)
+		return res.status(404).json(error('Video not found.', 404));
+
+	await video.update({'title': req.body.title, 'v_description': req.body.description });
+	res.status(200).json(success('Video updated successfully.', convVideo(video)));
 }
 
 module.exports = {
 	addCourse,
 	addVideo,
+	editVideo,
 };
