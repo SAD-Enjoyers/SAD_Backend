@@ -1,7 +1,7 @@
 const { Video, EducationalService } = require('../../models');
 const { success, error, convVideo } = require('../../utils');
-const { sequelize } = require('../../configs');
-
+const { sequelize, logger } = require('../../configs');
+const { Op } = require('sequelize');
 
 async function addCourse(req, res) {
 	req.body.serviceType = '3';
@@ -67,8 +67,51 @@ async function editVideo(req, res) {
 	res.status(200).json(success('Video updated successfully.', convVideo(video)));
 }
 
+async function deleteVideo(req, res) {
+	if (!req.body.sortNumber)
+		return res.status(404).json(error('Missing arguments.', 404));
+
+	const edu = await EducationalService.findOne({ where: { service_id: req.body.serviceId, 
+		user_id: req.userName, service_type: "3" } });
+	if (!edu)
+		return res.status(403).json(error('Permission denied.', 403));
+
+	const transaction = await sequelize.transaction();
+	try{
+		const deleted = await Video.destroy({
+			where: { service_id: req.body.serviceId, 
+			video_id: req.body.videoId, sort_number: req.body.sortNumber },
+		}, { transaction });
+
+		if (!deleted){
+			await transaction.rollback();
+			return res.status(404).json(error('Question not found in the selected list.', 404));
+		}
+		await Video.update(
+			{ sort_number: sequelize.literal('sort_number - 1') },
+			{
+				where: {
+					service_id: req.body.serviceId,
+					sort_number: { [Op.gt]: req.body.sortNumber },
+				},
+			},
+		{ transaction });
+		await transaction.commit();
+
+		// need to delete file in storage?
+		res.status(200).json(success('Video deleted and sort numbers updated successfully.', 200));
+
+	} catch (err) {
+		await transaction.rollback(); // have bugs deleted video not backed?
+
+		logger.error(`Error: ${req.method}, ${req.url}: \n${err.message} \n`);
+		res.status(500).json(error('Error deleting video.', 500));
+	}
+}
+
 module.exports = {
 	addCourse,
 	addVideo,
 	editVideo,
+	deleteVideo,
 };
