@@ -109,9 +109,53 @@ async function deleteVideo(req, res) {
 	}
 }
 
+async function reorderVideo(req, res) {
+	let service = await EducationalService.findOne({ where: { service_id: req.body.serviceId
+		,  service_type: '3', user_id: req.userName } });
+
+	if (!service)
+		return res.status(404).json(error('Service not found.', 404));
+	
+	const currentVideos = await Video.findAll({
+		where: { service_id: req.body.serviceId }
+	});
+
+	// if check for also new sort number is good
+	const currentVideoIds = currentVideos.map((q) => q.question_id);
+	const inputVideoIds = req.body.reorderedVideos.map((q) => q.questionId);
+	if (
+		currentVideoIds.length !== inputVideoIds.length || // Check for missing/extra video
+		!currentVideoIds.every((id) => inputVideoIds.includes(id)) // Check for mismatched IDs
+	)
+		return res.status(400).json(error('The provided videos do not match the selected videos for the course.', 400));
+
+	const transaction = await Video.sequelize.transaction();
+	try {
+		await Promise.all(
+			req.body.reorderedVideos.map((q) =>
+				Video.update(
+					{ sort_number: q.sortNumber },
+					{
+						where: { service_id: req.body.serviceId, video_id: q.videoId },
+						transaction,
+					}
+				)
+			)
+		);
+		await transaction.commit();
+		res.status(204).json(success('Selected videos reordered successfully.'));
+	} catch (err) {
+		await transaction.rollback();
+		logger.error(`Error: ${req.method}, ${req.url}: \n${err.message} \n`);
+		res.status(500).json(error('Failed to reorder selected videos.', 500));
+	}
+}
+
+
 module.exports = {
 	addCourse,
 	addVideo,
 	editVideo,
 	deleteVideo,
+	reorderVideo,
 };
