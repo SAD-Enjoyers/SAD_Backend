@@ -1,6 +1,6 @@
 const express = require('express');
 const { addCourse, courses, preview, addVideo, editVideo, deleteVideo,
-	reorderVideo, editCourse, Participants, } = require('../controllers/course');
+	reorderVideo, editCourse, Participants, playList } = require('../controllers/course');
 const { authenticateToken, partialAccess } = require('../middleware');
 
 const courseRoutes = express.Router();
@@ -14,5 +14,6 @@ courseRoutes.delete('/delete-video', authenticateToken, deleteVideo);
 courseRoutes.put('/reorder-video', authenticateToken, reorderVideo);
 courseRoutes.put('/edit-course', authenticateToken, editCourse);
 courseRoutes.get('/participants/:serviceId', authenticateToken, Participants);
+courseRoutes.get('/play-list/:serviceId', authenticateToken, playList);
 
 module.exports = courseRoutes;
