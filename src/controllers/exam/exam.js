@@ -1,4 +1,4 @@
-const { Exam, EducationalService, ExamAnswers, Registers, SelectedQuestions, } = require('../../models');
+const { Exam, EducationalService, ExamAnswers, Registers, SelectedQuestions, ServiceRecordedScores } = require('../../models');
 const { success, error, convPreviewExam, convExam } = require('../../utils');
 const { Op } = require('sequelize');
 const { sequelize, logger } = require('../../configs');
@@ -40,8 +40,14 @@ async function examPage(req, res) {
 			const userCount = await Registers.count({ where: { service_id: serviceId } });
 			const questionCount = await SelectedQuestions.count({ where: { service_id: serviceId } });
 			service = convExam({ ...service.dataValues, ...exam.dataValues, userCount, questionCount });
+			
+			let userScore = await ServiceRecordedScores.findOne({ where: { service_id: serviceId, user_id: req.userName } });
+			if (userScore)
+				userScore = { userScore: parseFloat(userScore.score) };
+			else
+				userScore = { userScore: null };
 
-			return res.status(200).json(success('Exam information', service));
+			return res.status(200).json(success('Exam information', {...service, ...userScore}));
 		}
 		else
 			return res.status(403).json(error('Permission denied.', 403));

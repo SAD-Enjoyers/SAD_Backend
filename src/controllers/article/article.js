@@ -1,4 +1,4 @@
-const { Article, EducationalService, Registers, } = require('../../models');
+const { Article, EducationalService, Registers, ServiceRecordedScores, } = require('../../models');
 const { success, error, convArticle, convBlog, convArticleCard } = require('../../utils');
 const { sequelize, logger } = require('../../configs');
 const { Op } = require('sequelize');
@@ -28,7 +28,14 @@ async function articlePage(req, res) {
 	let user = await Registers.findOne({ where: { service_id: req.params.serviceId, user_id: req.userName } });
 
 	if (req.userName == service.user_id || user){
-		return res.status(200).json(success("Blog", convBlog(blog) ));
+		let userScore = null;
+		userScore = await ServiceRecordedScores.findOne({ where: { service_id: req.params.serviceId, user_id: req.userName } });
+		if (userScore)
+			userScore = { userScore: parseFloat(userScore.score) };
+		else
+			userScore = { userScore: null };
+		let newBlog = convBlog(blog);
+		return res.status(200).json(success("Blog", {...newBlog, ...userScore} ));
 	} else 
 		return res.status(403).json(error('Permission denied.', 403));
 }
