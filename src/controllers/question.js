@@ -43,6 +43,7 @@ async function getQuestion(req, res) {
 	if (!question)
 		return res.status(404).json(error("Question not found."));
 	
+	let userScore = null;
 	if(req.partialAccess){
 		if(!question.visibility){
 			return res.status(403).json(error("You do not have access to this question.", 403));
@@ -51,9 +52,12 @@ async function getQuestion(req, res) {
 		if((req.userName != question.user_id) && (!question.visibility)){
 			return res.status(403).json(error("You do not have access to this question.", 403));
 		}
+		userScore = await RecordedScores.findOne({ where: { user_id: req.userName, question_id }});
+		if (userScore)
+			userScore = parseFloat(userScore.score);
 	}
 	question = convQuestion(question);
-	return res.status(200).json(success("question", { question }));
+	return res.status(200).json(success("question", { question, userScore }));
 }
 
 async function questions(req, res) {
