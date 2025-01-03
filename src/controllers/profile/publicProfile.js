@@ -1,5 +1,5 @@
-const { User, BackupUser, Expert } = require('../../models');
-const { success, error, convUser, convExpert } = require('../../utils');
+const { User, BackupUser, Expert, EducationalService } = require('../../models');
+const { success, error, convUser, convExpert, convCourseCard, convArticleCard, convExamCard } = require('../../utils');
 const { logger, transporter, createMail, forgotMail, verifyMail } = require('../../configs');
 const { Op } = require('sequelize');
 const ini = require('ini');
@@ -50,6 +50,30 @@ async function profiles(req, res) {
 	return res.status(200).json(success("users", { result }));
 }
 
+async function publicCourse(req, res) {
+	let createdCourses = await EducationalService.findAll({ where: { user_id: req.params.userId, service_type: '3'
+		, activity_status: ['A', 'P'] } });
+	createdCourses = createdCourses.map((course) => ({ type: "creator", ...convCourseCard(course.dataValues) }) );
+
+	res.status(200).json(success('Course cards', createdCourses));
+}
+
+async function publicArticle(req, res) {
+	let createdArticls = await EducationalService.findAll({ where: { user_id: req.params.userId, service_type: '2'
+		, activity_status: ['A', 'P'] } });
+	createdArticls = createdArticls.map((article) => ({ type: "creator", ...convArticleCard(article.dataValues) }) );
+
+	res.status(200).json(success('Article cards', createdArticls));
+}
+
+async function publicExam(req, res) {
+	let createdExams = await EducationalService.findAll({ where: { user_id: req.params.userId, service_type: '1'
+		, activity_status: ['A', 'P'] } });
+	createdExams = createdExams.map((exam) => ({ type: "creator", ...convExamCard(exam.dataValues) }) );
+
+	res.status(200).json(success('Exam cards', createdExams));
+}
+
 module.exports = {
-	publicProfile, profiles, 
+	publicProfile, profiles, publicExam, publicArticle, publicCourse,
 }
