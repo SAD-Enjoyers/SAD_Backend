@@ -1,6 +1,6 @@
 const express = require('express');
-const { getPrivateProfile, examList, editProfile, articleList, 
-	withdraw, deposit, transactions, wallet, cardNumber } = require('../controllers/profile');
+const { getPrivateProfile, examList, editProfile, articleList, profiles, publicProfile,
+	withdraw, deposit, transactions, wallet, cardNumber, courseList } = require('../controllers/profile');
 const { uploadFile } = require('../controllers/commonController');
 const { authenticateToken, partialAccess, profileImageUploader } = require('../middleware');
 
@@ -16,6 +16,9 @@ profileRoutes.get('/wallet', authenticateToken, wallet);
 profileRoutes.get('/transactions', authenticateToken, transactions);
 profileRoutes.post('/deposit', authenticateToken, deposit);
 profileRoutes.post('/withdraw', authenticateToken, withdraw);
+profileRoutes.get('/course-list', authenticateToken, courseList);
+profileRoutes.get('/public-profile/:userId', partialAccess, publicProfile);
+profileRoutes.get('/', partialAccess, profiles);
 // profile data
 
 module.exports = profileRoutes;
