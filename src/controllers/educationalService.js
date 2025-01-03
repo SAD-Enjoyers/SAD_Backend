@@ -34,8 +34,8 @@ async function registerService(req, res) {
 	const owner = await User.findOne({ where: { user_id: edu.user_id } });
 	if (!owner.balance)
 		owner.balance = 0;
-	owner.balance = parseFloat(owner.balance) + edu.price;
-	student.balance = parseFloat(student.balance) - edu.price;
+	owner.balance = parseFloat(owner.balance) + parseFloat(edu.price);
+	student.balance = parseFloat(student.balance) - parseFloat(edu.price);
 	const buy = await Transaction.create({ user_id: req.userName, t_time: new Date(), t_type: '3', t_volume: edu.price });
 	const sell = await Transaction.create({ user_id: edu.user_id, t_time: new Date(), t_type: '4', t_volume: edu.price });
 	const reg = await Registers.create({ user_id: req.userName, service_id: req.body.serviceId });
