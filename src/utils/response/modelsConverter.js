@@ -340,7 +340,33 @@ function convCourse(course) {
 	return newCourse;
 }
 
+function convCourseCard(course) {
+	if ('1' == course.s_level)
+		course.s_level = "Beginner";
+	else if ('2' == course.s_level)
+		course.s_level = "Medium";
+	else
+		course.s_level = "Advanced";
+
+	let newCourse = {
+		userId: course.user_id,
+		serviceId: course.service_id,
+		name: course.s_name,
+		description: course.description,
+		level: course.s_level,
+		price: course.price,
+		score: course.score,
+		numberOfVoters: course.number_of_voters,
+		image: course.image,
+		tag1: course.tag1,
+		tag2: course.tag2,
+		tag3: course.tag3,
+	}
+	return newCourse;
+}
+
+
 module.exports = { convUser, convExpert, convCategory, convQuestion, convPreviewExam,
 	convExam, convExamCard, convExamQuestions, convComment, 
 	convExamResult, convParticipants, convArticle, convBlog,
-	convArticleCard, convTransaction, convVideo, convCourse };
+	convArticleCard, convTransaction, convVideo, convCourse, convCourseCard };
