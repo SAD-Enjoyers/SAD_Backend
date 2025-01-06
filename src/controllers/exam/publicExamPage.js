@@ -23,7 +23,7 @@ async function examResult(req, res) {
 		}
 		examResult.right_answers = trueA; examResult.wrong_answers = wrongA;
 		examResult.empty_answers = numberAnswers - (trueA + wrongA);
-		examResult.exam_score = (trueA * 100) / numberAnswers;
+		examResult.exam_score = parseInt((trueA * 100) / numberAnswers);
 		const exam = await Exam.findOne({ where: { service_id: req.params.serviceId } });
 		if (!exam)
 			return res.status(500).json(error("Exam not found.", 500));
