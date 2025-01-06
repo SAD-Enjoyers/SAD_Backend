@@ -1,6 +1,7 @@
 const { Question, RecordedScores } = require('../models');
 const { success, error, convQuestion } = require('../utils');
 const { Op } = require('sequelize');
+const { sequelize } =require('../configs');
 
 async function addQuestion (req, res) {
 	let question = await Question.create({ user_id: req.userName, question_name: req.body.questionName, 
@@ -18,23 +19,40 @@ async function scoreSubmission(req, res) {
 	if(question.user_id == req.userName){
 		return res.status(403).json(error("The user cannot vote on his question.", 403));
 	}
-	let scored = await RecordedScores.findOne({ where: { question_id, user_id } });
-	if(scored){
-		return res.status(403).json(error("You have already rated.", 403));
-	}
 
+	let scored = await RecordedScores.findOne({ where: { question_id, user_id } });
 	let score = req.body.scored;
-	if(question.number_of_voters){
-		question.score = ((question.score * question.number_of_voters) + score) / (question.number_of_voters + 1);
-		question.number_of_voters = question.number_of_voters + 1;
+	if(scored){
+		// return res.status(403).json(error("You have already rated.", 403));
+		scored.score = score;
+		await scored.save();
+
+		const newAVG = await RecordedScores.findAll({
+			where: { question_id },
+			attributes: [[ sequelize.fn('AVG', sequelize.col('score')), 'averageScore', ]],
+			raw: true,
+		});
+
+		let averageScore = newAVG[0]?.averageScore || 0;
+		averageScore = parseFloat(averageScore).toFixed(2);
+		question.score = averageScore;
+		await question.save();
+
+		res.status(200).json(success("The score was updated.", 
+			{ score: question.score, numberOfVoters: question.number_of_voters }));		
 	} else {
-		question.number_of_voters = 1;
-		question.score = score;
+		if(question.number_of_voters){
+			question.score = ((question.score * question.number_of_voters) + score) / (question.number_of_voters + 1);
+			question.number_of_voters = question.number_of_voters + 1;
+		} else {
+			question.number_of_voters = 1;
+			question.score = score;
+		}
+		scored = await RecordedScores.create({ question_id, user_id, score });
+		await question.save();
+		res.status(200).json(success("The score was recorded.", 
+			{ score: question.score, numberOfVoters: question.number_of_voters }));
 	}
-	scored = await RecordedScores.create({ question_id, user_id, score });
-	question.save();
-	res.status(200).json(success("The score was recorded.", 
-		{ score: question.score, numberOfVoters: question.number_of_voters }));
 }
 
 async function getQuestion(req, res) {

@@ -1,6 +1,7 @@
 const { EducationalService, ServiceRecordedScores, Registers, Comment, Transaction, User } = require('../models');
 const { success, error, convComment } = require('../utils');
 const { Op } = require('sequelize');
+const { sequelize } =require('../configs');
 
 async function whichPage(req, res) {
 	const edu = await EducationalService.findOne({ where: { service_id: req.query.serviceId, user_id: req.userName } });
@@ -109,21 +110,38 @@ async function scoreSubmission(req, res) {
 		return res.status(403).json(error("Permission denied.", 403));
 
 	let scored = await ServiceRecordedScores.findOne({ where: { service_id, user_id } });
-	if(scored)
-		return res.status(403).json(error("You have already rated.", 403));
-
 	let score = req.body.scored;
-	if(service.number_of_voters){
-		service.score = ((service.score * service.number_of_voters) + score) / (service.number_of_voters + 1);
-		service.number_of_voters = service.number_of_voters + 1;
+	if(scored){
+		// return res.status(403).json(error("You have already rated.", 403));
+		scored.score = score;
+		await scored.save();
+
+		const newAVG = await ServiceRecordedScores.findAll({
+			where: { service_id },
+			attributes: [[ sequelize.fn('AVG', sequelize.col('score')), 'averageScore', ]],
+			raw: true,
+		});
+
+		let averageScore = newAVG[0]?.averageScore || 0;
+		averageScore = parseFloat(averageScore).toFixed(2);
+		service.score = averageScore;
+		await service.save();
+
+		res.status(200).json(success("The score was updated.", 
+			{ score: service.score, numberOfVoters: service.number_of_voters }));
 	} else {
-		service.number_of_voters = 1;
-		service.score = score;
+		if(service.number_of_voters){
+			service.score = ((service.score * service.number_of_voters) + score) / (service.number_of_voters + 1);
+			service.number_of_voters = service.number_of_voters + 1;
+		} else {
+			service.number_of_voters = 1;
+			service.score = score;
+		}
+		scored = await ServiceRecordedScores.create({ service_id, user_id, score }); // transaction
+		await service.save();
+		res.status(200).json(success("The score was recorded.", 
+			{ score: service.score, numberOfVoters: service.number_of_voters }));
 	}
-	scored = await ServiceRecordedScores.create({ service_id, user_id, score }); // transaction
-	service.save();
-	res.status(200).json(success("The score was recorded.", 
-		{ score: service.score, numberOfVoters: service.number_of_voters }));
 }
 
 module.exports = { whichPage, registerService, comments, addComment, scoreSubmission };
