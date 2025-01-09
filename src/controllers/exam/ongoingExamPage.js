@@ -12,12 +12,18 @@ async function startExam(req, res) {
 	if(!exam)
 		return res.status(404).json(error('Exam not found.', 404));
 
-	const registered = await Registers.findOne({ where: { user_id: req.userName, service_id: serviceId } });
+	const edu = await EducationalService.findOne({ where: { service_id: serviceId } });
+	let registered = await Registers.findOne({ where: { user_id: req.userName, service_id: serviceId } });
+	if (!registered && edu.user_id == req.userName){
+		let ownerFlag = true;
+		registered = await Registers.create({ service_id: serviceId, user_id: req.userName });
+	}
+
 	if (!registered)
 		return res.status(403).json(error('You are not a member of this service.', 403));
 
 	const examResult = await ExamResult.findOne({ where: { user_id: req.userName, service_id: serviceId} });
-	if(examResult && examResult.participation_times >= 1)
+	if(examResult && examResult.participation_times >= 1 && edu.user_id != req.userName)
 		return res.status(403).json(error('You have already taken this test.', 403));
 
 	if(examResult){
