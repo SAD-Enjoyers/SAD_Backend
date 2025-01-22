@@ -41,4 +41,29 @@ async function newTicket(req, res) {
 		return res.status(403).json(error('Access denied.', 403));
 }
 
-module.exports = { newTicket, searchTicket };
+async function updateTicket(req, res){
+	if (req.role == 'expert'){
+		let ticket = await Ticket.findOne({ where: { ticket_id: req.body.ticketId } });
+		if (!ticket)
+			return res.status(404).json(error('No ticket found.', 404));
+
+		let updates = { expert_id: req.userName };
+		if (req.body['state'] !== undefined){
+			if(req.body['state'] == 'Pending')
+				req.body['state'] = 1;
+			else if(req.body['state'] == 'Under review')
+				req.body['state'] = 2;
+			else if ('Checked')
+				req.body['state'] = 3;
+			updates['t_state'] = req.body['state'];
+		}
+		if (req.body['answer'] !== undefined)
+			updates['answer'] = req.body['answer'];
+
+		await ticket.update(updates);
+		res.status(200).json(success('Ticket updated.', convTicket(ticket)));
+	} else 
+		return res.status(403).json(error('Access denied.', 403));
+}
+
+module.exports = { newTicket, searchTicket, updateTicket };
