@@ -366,6 +366,13 @@ function convCourseCard(course) {
 }
 
 function convTicket(ticket) {
+	if(ticket.t_state == 1)
+		ticket.t_state = 'Pending';
+	else if(ticket.t_state == 2)
+		ticket.t_state = 'Under review';
+	else 
+		ticket.t_state = 'Checked';
+
 	let newTicket = {
 		ticketId: ticket.ticket_id,
 		userId: ticket.user_id,
