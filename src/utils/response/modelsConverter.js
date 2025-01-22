@@ -365,8 +365,22 @@ function convCourseCard(course) {
 	return newCourse;
 }
 
+function convTicket(ticket) {
+	let newTicket = {
+		ticketId: ticket.ticket_id,
+		userId: ticket.user_id,
+		serviceId: ticket.service_id,
+		message: ticket.t_message,
+		reportTime: ticket.report_time,
+		state: ticket.t_state,
+		answer: ticket.answer,
+		expertId: ticket.expert_id
+	}
+	return newTicket;
+}
 
 module.exports = { convUser, convExpert, convCategory, convQuestion, convPreviewExam,
 	convExam, convExamCard, convExamQuestions, convComment, 
 	convExamResult, convParticipants, convArticle, convBlog,
-	convArticleCard, convTransaction, convVideo, convCourse, convCourseCard };
+	convArticleCard, convTransaction, convVideo, convCourse, convCourseCard,
+	convTicket, };
