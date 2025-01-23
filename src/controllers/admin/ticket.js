@@ -1,4 +1,4 @@
-const { Expert, Ticket } = require('../../models');
+const { Expert, Ticket, EducationalService } = require('../../models');
 const { success, error, convExpert, hashPassword, convTicket } = require('../../utils');
 const { logger, transporter, createMail, forgotMail, verifyMail } = require('../../configs');
 const { Op } = require('sequelize');
@@ -66,4 +66,29 @@ async function updateTicket(req, res){
 		return res.status(403).json(error('Access denied.', 403));
 }
 
-module.exports = { newTicket, searchTicket, updateTicket };
+async function changeServiceState(req, res) {
+	if (req.role == 'expert'){
+		if (!req.query.activityStatus || !req.query.serviceId)
+			return res.status(400).json(error('activityStatus and serviceId required.', 400));
+		let activityStatus = 'A';
+		if (req.query.activityStatus == 'Active')
+			activityStatus = 'A';
+		else if (req.query.activityStatus == 'Suspended')
+			activityStatus = 'S';
+		else if (req.query.activityStatus == 'Passive')
+			activityStatus = 'P';
+		else
+			return res.status(400).json(error('activityStatus is not valid.', 400));
+
+		let edu = await EducationalService.findOne({ where: { service_id: req.query.serviceId } });
+		if (!edu)
+			return res.status(404).json(error('Service not found.', 404));
+		
+		await edu.update({ activity_status: activityStatus });
+
+		res.status(204).json(success('Service updated.', {}));
+	} else 
+		return res.status(403).json(error('Access denied.', 403));
+}
+
+module.exports = { newTicket, searchTicket, updateTicket, changeServiceState };
