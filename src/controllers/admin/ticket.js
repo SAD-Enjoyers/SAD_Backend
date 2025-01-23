@@ -1,7 +1,14 @@
-const { Expert, Ticket, EducationalService } = require('../../models');
+const { Expert, Ticket, EducationalService, User, } = require('../../models');
 const { success, error, convExpert, hashPassword, convTicket } = require('../../utils');
 const { logger, transporter, createMail, forgotMail, verifyMail } = require('../../configs');
 const { Op } = require('sequelize');
+const jwt = require('jsonwebtoken');
+const ini = require('ini');
+const fs = require('fs');
+const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
+
+const JWT_SECRET = process.env.JWT_SECRET;
+const userExpirationTime = config.server.userExpirationTime;
 
 async function searchTicket(req, res) {
 	if(req.role == 'expert'){
@@ -91,4 +98,18 @@ async function changeServiceState(req, res) {
 		return res.status(403).json(error('Access denied.', 403));
 }
 
-module.exports = { newTicket, searchTicket, updateTicket, changeServiceState };
+async function getUserSession(req, res) {
+	if (req.role == 'expert'){
+		let user = await User.findOne({ where: { user_id: req.query.userId } });
+		if (!user)
+			return res.status(404).json(error('User not found', 404));
+
+		let jwtToken = jwt.sign({ userName: user.user_id }, JWT_SECRET, {
+			expiresIn: userExpirationTime,
+		});
+		res.status(200).json(success('User Session.', { token: jwtToken, role: "User" }));
+	} else 
+		return res.status(403).json(error('Access denied.', 403));
+}
+
+module.exports = { newTicket, searchTicket, updateTicket, changeServiceState, getUserSession };
