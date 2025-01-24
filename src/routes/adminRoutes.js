@@ -1,6 +1,7 @@
 const express = require('express');
 const { editExpert, newTicket, searchTicket, updateTicket, changeServiceState, 
-	getUserSession, newAdmin, serviceStatistics, ticketStatistics, userActivityStatistics } = require('../controllers/admin');
+	getUserSession, newAdmin, serviceStatistics, ticketStatistics, userActivityStatistics,
+	transactionStatistics } = require('../controllers/admin');
 const { getPrivateProfile } = require('../controllers/profile');
 const { authenticateToken, partialAccess } = require('../middleware');
 
@@ -17,5 +18,6 @@ adminRoutes.post('/get-user-session', authenticateToken, getUserSession);
 adminRoutes.get('/service-statistics', authenticateToken, serviceStatistics);
 adminRoutes.get('/ticket-statistics', authenticateToken, ticketStatistics);
 adminRoutes.get('/activity-statistics', authenticateToken, userActivityStatistics);
+adminRoutes.get('/transaction-statistics', authenticateToken, transactionStatistics);
 
 module.exports = adminRoutes;

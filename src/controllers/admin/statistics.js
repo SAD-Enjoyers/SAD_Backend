@@ -1,4 +1,4 @@
-const { Expert, Activity, EducationalService, Ticket } = require('../../models');
+const { Expert, Activity, EducationalService, Ticket, Transaction } = require('../../models');
 const { success, error, convExpert } = require('../../utils');
 const { sequelize } =require('../../configs');
 const { Op } = require('sequelize');
@@ -144,4 +144,27 @@ async function userActivityStatistics(req, res) {
 		return res.status(403).json(error('Access denied.', 403));
 }
 
-module.exports = { serviceStatistics, ticketStatistics, userActivityStatistics };
+async function transactionStatistics(req, res) {
+	if (req.role == "expert"){
+		const results = await Transaction.findAll({
+			attributes: [
+				[Transaction.sequelize.fn('SUM', Transaction.sequelize.literal(`CASE WHEN t_type = '1' THEN t_volume ELSE 0 END`)), 'deposit'],
+				[Transaction.sequelize.fn('SUM', Transaction.sequelize.literal(`CASE WHEN t_type = '2' THEN t_volume ELSE 0 END`)), 'withdraw'],
+				[Transaction.sequelize.fn('COUNT', Transaction.sequelize.literal(`CASE WHEN t_type = '4' THEN 1 ELSE NULL END`)), 'numberOfSelledService']
+			],
+		});
+
+		const { deposit, withdraw, numberOfSelledService } = results[0].get({ plain: true });
+		const totalAvailableMoney = parseFloat(deposit || 0) - parseFloat(withdraw || 0);
+
+		res.status(200).json(success("Transaction statistics", {
+			totlaAvailableMoney: `${totalAvailableMoney.toFixed(2)}$`,
+			deposit: `${parseFloat(deposit || 0).toFixed(2)}$`,
+			withdraw: `${parseFloat(withdraw || 0).toFixed(2)}$`,
+			numberOfSelledService: parseInt(numberOfSelledService || 0, 10),
+		}));
+	} else
+		return res.status(403).json(error('Access denied.', 403)); 
+}
+
+module.exports = { serviceStatistics, ticketStatistics, userActivityStatistics, transactionStatistics };
