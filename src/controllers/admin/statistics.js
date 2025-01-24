@@ -126,7 +126,20 @@ async function userActivityStatistics(req, res) {
 			return { [login_date]: parseInt(user_count, 10) };
 		});
 
-		res.status(200).json(success('User activity:', userActivity));
+		const twoHoursAgo = new Date();
+		twoHoursAgo.setHours(twoHoursAgo.getHours() - 2);
+
+		const activeUsers = await Activity.count({
+			distinct: true,
+			col: 'user_id',
+			where: {
+				l_time: {
+					[Op.gte]: twoHoursAgo,
+				},
+			},
+		});
+
+		res.status(200).json(success('User activity:', { activeUsers, userActivity }));
 	} else 
 		return res.status(403).json(error('Access denied.', 403));
 }
