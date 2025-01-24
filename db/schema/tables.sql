@@ -64,6 +64,7 @@ CREATE TABLE "Category" (
 	category varchar(30) NOT NULL UNIQUE
 );
 
+-- All Tickets
 CREATE TABLE IF NOT EXISTS "Ticket" (
 	ticket_id serial UNIQUE,
 	user_id varchar(30) NOT NULL,
@@ -77,6 +78,14 @@ CREATE TABLE IF NOT EXISTS "Ticket" (
 	FOREIGN KEY (service_id) REFERENCES "Educational_service"(service_id) ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (expert_id) REFERENCES "Expert"(expert_id) ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+-- User Activity 
+CREATE TABLE IF NOT EXISTS "Activity" (
+	l_time timestamp NOT NULL,
+	user_id varchar(30) NOT NULL,
+	PRIMARY KEY(l_time, user_id)
+	-- FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE NO ACTION ON UPDATE CASCADE -- not connect
 );
 
 -------------------------------------- Services --------------------------------------

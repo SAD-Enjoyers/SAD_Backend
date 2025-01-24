@@ -7,6 +7,7 @@ const exam = require('./exam');
 const article = require('./article');
 const video = require('./course');
 const ticket = require('./ticket');
+const activity = require('./activity');
 
 // -----------------------------------------------------------------
 // @ Question <-> Exam
@@ -75,4 +76,5 @@ module.exports = {
 	...article,
 	...video,
 	...ticket,
+	...activity,
 };
