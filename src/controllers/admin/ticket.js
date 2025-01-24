@@ -100,6 +100,8 @@ async function changeServiceState(req, res) {
 
 async function getUserSession(req, res) {
 	if (req.role == 'expert'){
+		if(!req.query.userId)
+			return res.status(400).json(error("Missing parameter.", 400));
 		let user = await User.findOne({ where: { user_id: req.query.userId } });
 		if (!user)
 			return res.status(404).json(error('User not found', 404));
