@@ -44,4 +44,6 @@ async function newAdmin(req, res) {
 		return res.status(403).json(error('Access denied.', 403));
 }
 
+// add category
+
 module.exports = { editExpert, newAdmin };

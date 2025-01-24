@@ -1,6 +1,6 @@
 const express = require('express');
 const { editExpert, newTicket, searchTicket, updateTicket, changeServiceState, 
-	getUserSession, newAdmin, serviceStatistics } = require('../controllers/admin');
+	getUserSession, newAdmin, serviceStatistics, ticketStatistics } = require('../controllers/admin');
 const { getPrivateProfile } = require('../controllers/profile');
 const { authenticateToken, partialAccess } = require('../middleware');
 
@@ -15,5 +15,6 @@ adminRoutes.put('/update-ticket', authenticateToken, updateTicket); // better to
 adminRoutes.put('/change-service-state', authenticateToken, changeServiceState);
 adminRoutes.post('/get-user-session', authenticateToken, getUserSession);
 adminRoutes.get('/service-statistics', authenticateToken, serviceStatistics);
+adminRoutes.get('/ticket-statistics', authenticateToken, ticketStatistics);
 
 module.exports = adminRoutes;

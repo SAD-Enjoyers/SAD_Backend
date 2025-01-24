@@ -1,4 +1,4 @@
-const { Expert, Activity, EducationalService } = require('../../models');
+const { Expert, Activity, EducationalService, Ticket } = require('../../models');
 const { success, error, convExpert } = require('../../utils');
 const { sequelize } =require('../../configs');
 const { Op } = require('sequelize');
@@ -60,4 +60,41 @@ async function serviceStatistics(req, res) {
 		return res.status(403).json(error('Access denied.', 403));
 }
 
-module.exports = { serviceStatistics };
+async function ticketStatistics(req, res) {
+	if (req.role == "expert"){
+		const results = await Ticket.findAll({
+			attributes: [
+				't_state',
+				[Ticket.sequelize.fn('COUNT', Ticket.sequelize.col('ticket_id')), 'count'],
+			],
+			group: ['t_state'],
+		});
+
+		const stats = results.reduce(
+			(acc, row) => {
+				const { t_state, count } = row.get({ plain: true });
+				switch (t_state) {
+					case 1:
+						acc.pending += parseInt(count, 10);
+						break;
+					case 2:
+						acc.UnderReview += parseInt(count, 10);
+						break;
+					case 3:
+						acc.Checked += parseInt(count, 10);
+						break;
+					default:
+						break;
+				}
+				acc.total += parseInt(count, 10);
+				return acc;
+			},
+			{ total: 0, pending: 0, UnderReview: 0, Checked: 0 }
+		);
+
+		res.status(200).json(success("Ticket statistics", stats));
+	} else 
+		return res.status(403).json(error('Access denied.', 403));
+}
+
+module.exports = { serviceStatistics, ticketStatistics };
