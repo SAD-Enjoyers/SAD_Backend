@@ -97,4 +97,38 @@ async function ticketStatistics(req, res) {
 		return res.status(403).json(error('Access denied.', 403));
 }
 
-module.exports = { serviceStatistics, ticketStatistics };
+async function userActivityStatistics(req, res) {
+	if (req.role = "expert"){
+		let days = req.query.days;
+		if (!days)
+			return res.status(400).json(error('Missing parameter.', 400));
+
+		const startDate = new Date();
+		startDate.setDate(startDate.getDate() - days);
+		startDate.setHours(0, 0, 0, 0);
+
+		const results = await Activity.findAll({
+			attributes: [
+				[Activity.sequelize.fn('DATE', Activity.sequelize.col('l_time')), 'login_date'],
+				[Activity.sequelize.fn('COUNT', Activity.sequelize.fn('DISTINCT', Activity.sequelize.col('user_id'))), 'user_count'],
+			],
+			where: {
+				l_time: {
+					[Op.gte]: startDate,
+				},
+			},
+			group: [Activity.sequelize.fn('DATE', Activity.sequelize.col('l_time'))],
+			order: [[Activity.sequelize.fn('DATE', Activity.sequelize.col('l_time')), 'ASC']],
+		});
+
+		const userActivity = results.map(row => {
+			const { login_date, user_count } = row.get({ plain: true });
+			return { [login_date]: parseInt(user_count, 10) };
+		});
+
+		res.status(200).json(success('User activity:', userActivity));
+	} else 
+		return res.status(403).json(error('Access denied.', 403));
+}
+
+module.exports = { serviceStatistics, ticketStatistics, userActivityStatistics };
