@@ -17,6 +17,6 @@ educationalServiceRoutes.get('/which-page/', authenticateToken, whichPage);
 educationalServiceRoutes.post('/register/', authenticateToken, registerService);
 educationalServiceRoutes.get('/comments/:serviceId', comments);
 educationalServiceRoutes.post('/add-comment/', authenticateToken, addComment);
-educationalServiceRoutes.post('/score-submission', authenticateToken, scoreSubmission);
+educationalServiceRoutes.put('/score-submission', authenticateToken, scoreSubmission);
 
 module.exports = educationalServiceRoutes;

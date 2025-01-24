@@ -103,7 +103,7 @@ async function scoreSubmission(req, res) {
 	if (!service)
 		return res.status(404).json(error("Service not found.", 404));
 	if(service.user_id == req.userName){
-		return res.status(403).json(error("The user cannot vote on his question.", 403));
+		return res.status(403).json(error("The user cannot vote on his service.", 403));
 	}
 	const reg = await Registers.findOne({ where: { service_id, user_id } });
 	if (!reg)
