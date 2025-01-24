@@ -23,7 +23,8 @@ app.use('/api/v1/uploads/article-attachments', express.static(__dirname + '/uplo
 app.use('/api/v1/uploads/course-video', express.static(__dirname + '/uploads/course-video'));
 
 app.use((req, res, next) => {
-	logger.info(`Request: ${req.method}, ${req.url}`);
+	let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+	logger.info(`Request: ${req.method}, ${req.url}, IP: ${ip}`);
 	next();
 });
 

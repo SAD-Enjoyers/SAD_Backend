@@ -1,4 +1,4 @@
-const { User, BackupUser, Expert } = require('../models');
+const { User, BackupUser, Expert, Activity } = require('../models');
 const { success, error, hashPassword, verifyPassword,
 	randomPassword, clearRecoveryCode, generateRandomToken } = require('../utils');
 const { logger, transporter, createMail, forgotMail, verifyMail } = require('../configs');
@@ -59,7 +59,7 @@ async function verifyEmail (req, res) {
 	user.verification_token = null;
 	await user.save();
 
-	return res.redirect('http://thetechverse.ir:5173/login');
+	return res.redirect('http://thetechverse.ir/login');
 }
 
 async function login(req, res) {
@@ -109,6 +109,10 @@ async function login(req, res) {
 	res.setHeader('x-token', jwtToken);
 	res.setHeader('x-role', Role);
 	res.status(201).json(success('Login successful.', { token: jwtToken, role: Role }));
+
+	if (Role == "user") {
+		let activityLog = await Activity.create({ l_time: new Date(), user_id: user.user_id });
+	}
 }
 
 
