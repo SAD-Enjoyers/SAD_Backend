@@ -1,5 +1,5 @@
-const { Expert, Activity, EducationalService, Ticket, Transaction } = require('../../models');
-const { success, error, convExpert } = require('../../utils');
+const { Expert, Activity, EducationalService, Ticket, Transaction, Question } = require('../../models');
+const { success, error, convExpert, combineSumJson } = require('../../utils');
 const { sequelize } =require('../../configs');
 const { Op } = require('sequelize');
 
@@ -167,4 +167,40 @@ async function transactionStatistics(req, res) {
 		return res.status(403).json(error('Access denied.', 403)); 
 }
 
-module.exports = { serviceStatistics, ticketStatistics, userActivityStatistics, transactionStatistics };
+async function tagUsageStatistics(req, res) {
+	if(req.role == "expert"){
+		const questionTags = await Question.findAll({
+			attributes: ['tag1', 'tag2', 'tag3'],
+		});
+
+		const eduTags = await EducationalService.findAll({
+			attributes: ['tag1', 'tag2', 'tag3'],
+		});
+
+		const tagCounts = {};
+
+		questionTags.forEach(row => {
+			const tags = [row.dataValues.tag1, row.dataValues.tag2, row.dataValues.tag3];
+			tags.forEach(tag => {
+				if (tag) {
+					tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+				}
+			});
+		});
+
+		eduTags.forEach(row => {
+			const tags = [row.dataValues.tag1, row.dataValues.tag2, row.dataValues.tag3];
+			tags.forEach(tag => {
+				if (tag) {
+					tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+				}
+			});
+		});
+
+		res.status(200).json(success("Tag statistics", tagCounts));
+	} else 
+		return res.status(403).json(error('Access denied.', 403)); 
+}
+
+module.exports = { serviceStatistics, ticketStatistics, userActivityStatistics, 
+	transactionStatistics, tagUsageStatistics };
