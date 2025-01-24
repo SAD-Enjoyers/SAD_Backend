@@ -1,5 +1,5 @@
 const { Expert, Ticket, EducationalService, User, } = require('../../models');
-const { success, error, convExpert, hashPassword, convTicket } = require('../../utils');
+const { success, error, convExpert, hashPassword, convTicket, convService } = require('../../utils');
 const { logger, transporter, createMail, forgotMail, verifyMail } = require('../../configs');
 const { Op } = require('sequelize');
 const jwt = require('jsonwebtoken');
@@ -112,4 +112,17 @@ async function getUserSession(req, res) {
 		return res.status(403).json(error('Access denied.', 403));
 }
 
-module.exports = { newTicket, searchTicket, updateTicket, changeServiceState, getUserSession };
+async function serviceInformation(req, res) {
+	if (req.role == "expert"){
+		if (!req.query.serviceId)
+			return res.status(400).json(error("Missing parameter.", 400));
+		let edu = await EducationalService.findOne({ where: { service_id: req.query.serviceId } });
+		if (!edu)
+			return res.status(404).json(error("Service not found.", 404));
+
+		res.status(200).json(success("Educational Service Information", convService(edu)));
+	} else 
+		return res.status(403).json(error('Access denied.', 403));
+}
+
+module.exports = { newTicket, searchTicket, updateTicket, changeServiceState, getUserSession, serviceInformation };

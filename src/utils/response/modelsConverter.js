@@ -386,8 +386,49 @@ function convTicket(ticket) {
 	return newTicket;
 }
 
+function convService(service) {
+	if ('A' == service.activity_status)
+		service.activity_status = "Active";
+	else if ('P' == service.activity_status)
+		service.activity_status = "Passive";
+	else
+		service.activity_status = "Suspended";
+
+	if ('1' == service.s_level)
+		service.s_level = "Beginner";
+	else if ('2' == service.s_level)
+		service.s_level = "Medium";
+	else
+		service.s_level = "Advanced";
+
+	if (service.service_type == '1')
+		serviceType = "Exam";
+	else if (service.service_type == '2')
+		serviceType = "Article";
+	else
+		serviceType = "Course";
+
+	let newService = {
+		userId: service.user_id,
+		serviceId: service.service_id,
+		name: service.s_name,
+		description: service.description,
+		serviceType: serviceType,
+		level: service.s_level,
+		price: service.price,
+		activityStatus: service.activity_status,
+		score: service.score,
+		numberOfVoters: service.number_of_voters,
+		image: service.image,
+		tag1: service.tag1,
+		tag2: service.tag2,
+		tag3: service.tag3,
+	}
+	return newService;
+}
+
 module.exports = { convUser, convExpert, convCategory, convQuestion, convPreviewExam,
 	convExam, convExamCard, convExamQuestions, convComment, 
 	convExamResult, convParticipants, convArticle, convBlog,
 	convArticleCard, convTransaction, convVideo, convCourse, convCourseCard,
-	convTicket, };
+	convTicket, convService };
