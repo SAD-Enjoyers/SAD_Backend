@@ -1,6 +1,5 @@
 const { Expert } = require('../../models');
 const { success, error, convExpert, hashPassword } = require('../../utils');
-const { logger, transporter, createMail, forgotMail, verifyMail } = require('../../configs');
 
 async function editExpert(req, res){
 	if (req.role == 'expert'){

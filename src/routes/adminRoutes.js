@@ -1,6 +1,6 @@
 const express = require('express');
 const { editExpert, newTicket, searchTicket, updateTicket, changeServiceState, 
-	getUserSession, newAdmin } = require('../controllers/admin');
+	getUserSession, newAdmin, serviceStatistics } = require('../controllers/admin');
 const { getPrivateProfile } = require('../controllers/profile');
 const { authenticateToken, partialAccess } = require('../middleware');
 
@@ -14,5 +14,6 @@ adminRoutes.get('/search-tickets', authenticateToken, searchTicket);
 adminRoutes.put('/update-ticket', authenticateToken, updateTicket); // better to use patch
 adminRoutes.put('/change-service-state', authenticateToken, changeServiceState);
 adminRoutes.post('/get-user-session', authenticateToken, getUserSession);
+adminRoutes.get('/service-statistics', authenticateToken, serviceStatistics);
 
 module.exports = adminRoutes;
