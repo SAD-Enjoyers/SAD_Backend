@@ -1,4 +1,4 @@
-const { Expert } = require('../../models');
+const { Expert, Category } = require('../../models');
 const { success, error, convExpert, hashPassword } = require('../../utils');
 
 async function editExpert(req, res){
@@ -44,6 +44,16 @@ async function newAdmin(req, res) {
 		return res.status(403).json(error('Access denied.', 403));
 }
 
-// add category
+async function newCategory(req, res){
+	if (req.role == "expert"){
+		const exist = await Category.findOne({ where: { category: req.query.category } });
+		if(exist)
+			return res.status(400).json(error("This Category already exist.", 400));
 
-module.exports = { editExpert, newAdmin };
+		await Category.create({ category: req.query.category });
+		res.status(201).json(success("Category successfully added.", { category: req.query.category }));
+	} else 
+		return res.status(403).json(error('Access denied.', 403));
+}
+
+module.exports = { editExpert, newAdmin, newCategory };
