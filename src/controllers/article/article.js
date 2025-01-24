@@ -17,7 +17,18 @@ async function preview(req, res) {
 			privatePage = true;
 	}
 
-	res.status(200).json(success('Article', { Article: service, privatePage }));
+	let userScore = null;
+	if (req.userName){
+		userScore = await ServiceRecordedScores.findOne({ where: { service_id: req.params.serviceId, user_id: req.userName } });
+		if (userScore)
+			userScore = { userScore: parseFloat(userScore.score) };
+		else
+			userScore = { userScore: null };
+	} else 
+		userScore = { userScore: null };
+
+
+	res.status(200).json(success('Article', { Article: service, privatePage, ...userScore }));
 }
 
 async function articlePage(req, res) {
