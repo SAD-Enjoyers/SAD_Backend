@@ -1,4 +1,4 @@
-const { Expert, Ticket, EducationalService, User, } = require('../../models');
+const { Expert, Ticket, EducationalService, User, NotifyUser } = require('../../models');
 const { success, error, convExpert, hashPassword, convTicket, convService } = require('../../utils');
 const { logger, transporter, createMail, forgotMail, verifyMail } = require('../../configs');
 const { Op } = require('sequelize');
@@ -69,6 +69,13 @@ async function updateTicket(req, res){
 
 		await ticket.update(updates);
 		res.status(200).json(success('Ticket updated.', convTicket(ticket)));
+
+		let user = await NotifyUser.findOne({ where: { user_id: ticket.user_id } });
+		if (user)
+			await user.update({ state: 1 });
+		else
+			await NotifyUser.create({ user_id: ticket.user_id, state: 1 });
+
 	} else 
 		return res.status(403).json(error('Access denied.', 403));
 }

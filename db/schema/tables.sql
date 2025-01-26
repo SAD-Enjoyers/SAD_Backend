@@ -80,6 +80,14 @@ CREATE TABLE IF NOT EXISTS "Ticket" (
 	FOREIGN KEY (expert_id) REFERENCES "Expert"(expert_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
+-- notify user
+CREATE TABLE IF NOT EXISTS "Notify_user" (
+	user_id varchar(30) NOT NULL,
+	state smallint not null,
+	PRIMARY KEY(user_id),
+	FOREIGN KEY (user_id) REFERENCES "User"(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 -- User Activity 
 CREATE TABLE IF NOT EXISTS "Activity" (
 	l_time timestamp NOT NULL,

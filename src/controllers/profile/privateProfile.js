@@ -1,4 +1,4 @@
-const { User, BackupUser, Expert, Ticket } = require('../../models');
+const { User, BackupUser, Expert, Ticket, NotifyUser } = require('../../models');
 const { success, error, convUser, convExpert, convTicket } = require('../../utils');
 const { logger, transporter, createMail, forgotMail, verifyMail } = require('../../configs');
 
@@ -65,4 +65,14 @@ async function userTickets(req, res) {
 	return res.status(200).json(success('Tickets:', tickets));
 }
 
-module.exports = { getPrivateProfile, editProfile, userTickets };
+async function ticketNotify(req, res){
+	let notify = await NotifyUser.findOne({ where: { user_id: req.userName } });
+	if(notify && notify.state == 1){
+		await notify.update({ state: 0 });
+		res.status(200).json(success("Notify User", { status: true }));
+	}
+	else
+		res.status(200).json(success("Notify User", { status: false }));
+}
+
+module.exports = { getPrivateProfile, editProfile, userTickets, ticketNotify };

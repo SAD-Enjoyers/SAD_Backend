@@ -63,4 +63,25 @@ const Ticket = sequelize.define('Ticket', {
 	timestamps: false, 
 });
 
-module.exports = { Ticket };
+const NotifyUser = sequelize.define('NotifyUser', {
+	user_id: {
+		type: DataTypes.STRING(30),
+		allowNull: false,
+		primaryKey: true,
+		references: {
+			model: 'User',
+			key: 'user_id',
+		},
+		onDelete: 'CASCADE',
+		onUpdate: 'CASCADE',
+	},
+	state: {
+		type: DataTypes.SMALLINT,
+		allowNull: false,
+	}
+}, {
+	tableName: 'Notify_user',
+	timestamps: false, 
+});
+
+module.exports = { Ticket, NotifyUser };
