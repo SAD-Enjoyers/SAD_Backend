@@ -1,4 +1,4 @@
-const { Exam, ExamAnswers, Registers, SelectedQuestions, Question, ExamResult } = require('../../models');
+const { Exam, EducationalService, ExamAnswers, Registers, SelectedQuestions, Question, ExamResult } = require('../../models');
 const { success, error, convExamQuestions } = require('../../utils');
 const jwt = require('jsonwebtoken');
 const { sequelize, logger } = require('../../configs');
