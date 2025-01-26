@@ -1,5 +1,5 @@
-const { User, BackupUser, Expert } = require('../../models');
-const { success, error, convUser, convExpert } = require('../../utils');
+const { User, BackupUser, Expert, Ticket } = require('../../models');
+const { success, error, convUser, convExpert, convTicket } = require('../../utils');
 const { logger, transporter, createMail, forgotMail, verifyMail } = require('../../configs');
 
 async function getPrivateProfile (req, res) {
@@ -56,4 +56,13 @@ async function editProfile(req, res) {
 	res.status(200).json(success('Profile updated successfully.', convUser(user) ));
 }
 
-module.exports = { getPrivateProfile, editProfile };
+async function userTickets(req, res) {
+	let tickets = await Ticket.findAll({ where: { user_id: req.userName }, order: [['report_time', 'DESC']], });
+	if(!tickets || !tickets.length)
+		return res.status(200).json(success('No Ticket available.', {}));
+
+	tickets = tickets.map((item) => ({ ...convTicket(item) }));
+	return res.status(200).json(success('Tickets:', tickets));
+}
+
+module.exports = { getPrivateProfile, editProfile, userTickets };
