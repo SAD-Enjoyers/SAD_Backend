@@ -56,4 +56,13 @@ async function newCategory(req, res){
 		return res.status(403).json(error('Access denied.', 403));
 }
 
-module.exports = { editExpert, newAdmin, newCategory };
+async function adminList(req, res) {
+	if (req.role == "expert"){
+		let exp = await Expert.findAll();
+		exp = exp.map((item) => convExpert(item));
+		res.status(200).json(success('Admin list:', exp));
+	} else 
+		return res.status(403).json(error('Access denied.', 403));
+}
+
+module.exports = { editExpert, newAdmin, newCategory, adminList };
