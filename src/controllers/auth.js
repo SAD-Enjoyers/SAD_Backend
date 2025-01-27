@@ -59,7 +59,7 @@ async function verifyEmail (req, res) {
 	user.verification_token = null;
 	await user.save();
 
-	return res.redirect('http://thetechverse.ir/login');
+	return res.redirect('https://thetechverse.ir');
 }
 
 async function login(req, res) {
