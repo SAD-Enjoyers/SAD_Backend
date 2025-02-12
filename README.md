@@ -20,6 +20,7 @@ The frontend and backend services are managed under the **SAD_Enjoyers** organiz
 - [Installation](#installation)
 - [Database Setup](#database-setup)
 - [Usage](#usage)
+- [Security](#security)
 - [Contributing](#contributing)
 
 ## Features
@@ -126,6 +127,18 @@ And also files store in */var/www/SADapp/uploads/* and strucure of it like this:
   ```
 
 - The API will be accessible at `http://localhost:3000` (or your specified port).
+
+## Security
+
+To ensure security, this program uses `CORS`. Also, all queries are built by `ORM`, which makes the program resistant to **SQL injection** attacks. If you want to increase security, you can easily do this by adding the following libraries to *server.js* file. (**Recommended**: This is not done by default, but adding these third-party plugins is fully compatible with our software and is recommended.)
+
++ [Helmet](https://www.npmjs.com/package/helmet): Help secure Express apps by setting HTTP response headers.
++ [HPP](https://www.npmjs.com/package/hpp): Express middleware to protect against HTTP Parameter Pollution attacks.
++ [express-rate-limit](https://www.npmjs.com/package/express-rate-limit): Basic rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.
++ [CSURF](https://www.npmjs.com/package/csurf): Node.js CSRF protection middleware.
+> Also we can use this library for *CSRF*:
+> [CSRF](https://www.npmjs.com/package/csrf): Logic behind CSRF token creation and verification.
+> [Double CSRF](https://www.npmjs.com/package/csrf-csrf): A utility package to help implement stateless CSRF protection using the Double Submit Cookie Pattern in express.
 
 ## Contributing
 
